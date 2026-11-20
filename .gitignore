@@ -8,3 +8,7 @@
 /var/
 /vendor/
 ###< symfony/framework-bundle ###
+
+# Local environment files (not versioned)
+/.env
+/.env.dev
