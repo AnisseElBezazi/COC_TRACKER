@@ -1,0 +1,661 @@
+{% extends 'base.html.twig' %}
+{% import '_macros.html.twig' as m %}
+
+{% block title %}{{ groupe.ligue.nom }} · semaine du {{ groupe.dateDebut|date('d/m/Y') }}{% endblock %}
+
+{% block body %}
+    {% set c = ligue_accent(groupe.ligue) %}
+    {% set maxProj = max(prediction|map(l => l.projetes)) %}
+    {% set maxTroph = max(prediction|map(l => l.trophees)) %}
+    {# Zones de promotion / relégation : elles dépendent de la ligue (pourcentage du groupe, ou top N en Légende). #}
+    {% set promus = regle ? regle.promus : 0 %}
+    {% set relegues = regle ? regle.relegues : 0 %}
+    {% set taille = kpis.joueurs %}
+
+    {% if analyseIncomplete %}
+        <div class="progress" id="analyse" data-url="{{ path('app_groupe_analyser', {id: groupe.id}) }}" data-token="{{ csrf_token('analyser') }}" role="status">
+            <b>Analyse des combats du groupe…</b> <span id="analyse-compte">0 / {{ kpis.joueurs }}</span>
+            <div class="bar" style="--c1:var(--green);--c2:var(--green2)"><i id="analyse-barre" style="width:2%"></i></div>
+            <p class="note">On récupère les attaques et les armées de chaque joueur. La page se met à jour toute seule.</p>
+        </div>
+        <script>
+        (async () => {
+            const bloc = document.getElementById('analyse');
+            let debut = 0;
+            let passage = 1;
+            let restants = 0;
+            try {
+                while (true) {
+                    const reponse = await fetch(bloc.dataset.url, {method: 'POST', body: new URLSearchParams({_token: bloc.dataset.token, debut})});
+                    if (!reponse.ok) throw new Error();
+                    const r = await reponse.json();
+                    document.getElementById('analyse-compte').textContent = r.fait + ' / ' + r.total;
+                    document.getElementById('analyse-barre').style.width = Math.max(2, 100 * r.fait / r.total) + '%';
+                    if (!r.termine) { debut = r.fait; continue; }
+                    // Fin du passage : si l'API a refusé certains joueurs (trop de requêtes), on repasse dessus (2 fois au plus).
+                    restants = r.restants;
+                    if (restants > 0 && passage < 3) {
+                        passage++;
+                        debut = 0;
+                        bloc.querySelector('b').textContent = 'L\'API limite le débit : nouvel essai pour ' + restants + ' joueur' + (restants > 1 ? 's' : '') + '…';
+                        await new Promise((ok) => setTimeout(ok, 2500));
+                        continue;
+                    }
+                    break;
+                }
+                if (restants > 0) {
+                    bloc.querySelector('b').textContent = restants + ' joueur' + (restants > 1 ? 's n\'ont' : ' n\'a') + ' pas pu être analysé' + (restants > 1 ? 's' : '') + ' (API saturée). Recharge la page dans un instant pour réessayer.';
+                    return;
+                }
+                // Fin de l'analyse : la page s'efface en fondu avant de se recharger, au lieu de sauter d'un coup.
+                document.body.classList.add('sortie');
+                setTimeout(() => location.reload(), 320);
+            } catch (e) {
+                bloc.querySelector('b').textContent = 'Analyse interrompue — recharge la page pour reprendre.';
+            }
+        })();
+        </script>
+    {% endif %}
+
+    {# ===== Bandeau ===== #}
+    <div class="dtop" style="--c1:{{ c[0] }};--c2:{{ c[1] }}">
+        <a class="backbtn backico" href="{{ path('app_accueil') }}" title="Nouvelle recherche" aria-label="Nouvelle recherche">←</a>
+        {% if groupe.ligue.urlIcone %}<img class="league" src="{{ groupe.ligue.urlIcone }}" alt="{{ groupe.ligue.nom }}" width="74" height="74">{% endif %}
+        <div class="t1">{{ groupe.ligue.nom|upper }}</div>
+        <div class="spacer"></div>
+        <div class="badge-date" title="Semaine du {{ groupe.dateDebut|date('d/m') }} au {{ groupe.dateFin|date('d/m/Y') }}">{{ groupe.dateDebut|date('d/m') }} → {{ groupe.dateFin|date('d/m') }}</div>
+    </div>
+
+    {# ===== Chiffres clés : une icône, un chiffre, un mot ===== #}
+    <div class="dkpis">
+        <div class="dkpi" style="--kc:#fff" title="{{ kpis.avancement }} % de la semaine jouée · {{ kpis.finis }} joueurs ont fini"><div class="v">{{ kpis.joueurs }}</div><div class="l">Joueurs</div></div>
+        <div class="dkpi" style="--kc:#fff"><div class="v"><img class="mi" src="{{ asset('img/attack.png') }}" alt="">{{ kpis.joues }}</div><div class="l">Attaques</div></div>
+        <div class="dkpi" style="--kc:#ffd566" title="{{ kpis.pourcentage is not null ? kpis.pourcentage|number_format(1, ',') ~ ' % de destruction en moyenne' : '' }}"><div class="v">{{ kpis.etoiles is not null ? kpis.etoiles|number_format(2, ',') : '—' }}<span class="gold">★</span></div><div class="l">Moyenne</div></div>
+        <div class="dkpi" style="--kc:#fff" title="Trophées par combat (attaques et défenses)"><div class="v"><img class="mi tro" src="{{ asset('img/trophies.png') }}" alt="">{{ kpis.tropheesParCombat is not null ? kpis.tropheesParCombat|number_format(0) : '—' }}</div><div class="l">Par combat</div></div>
+        <div class="dkpi" style="--kc:#9bef4a" title="{{ regle and promus > 0 ? 'Trophées prévus du dernier promu · ' ~ regle.nom : 'Règle de promotion non renseignée pour cette ligue' }}"><div class="v"><img class="mi tro" src="{{ asset('img/trophies.png') }}" alt="">{{ kpis.seuilPromotion is not null ? kpis.seuilPromotion : '—' }}</div><div class="l">{{ regle and promus > 0 ? 'Top ' ~ promus : 'Promotion' }}</div></div>
+    </div>
+
+    {# ===== Navigation : 4 onglets, puis les sous-vues de l'onglet ===== #}
+    <div class="dnav" id="dnav">
+        <div class="dtabs" id="dtabs" role="tablist" aria-label="Sections du groupe">
+            <button class="dtab active" type="button" role="tab" id="tab-projection" data-g="projection" aria-selected="true"><img src="{{ asset('img/trophies.png') }}" alt="">Projection</button>
+            <button class="dtab" type="button" role="tab" id="tab-top" data-g="top" aria-selected="false" tabindex="-1"><img src="{{ asset('img/attack.png') }}" alt="">Top joueurs</button>
+            <button class="dtab" type="button" role="tab" id="tab-meta" data-g="meta" aria-selected="false" tabindex="-1"><img src="{{ asset('img/stars.png') }}" alt="">Méta<span class="cnt">{{ metaTroupes|length }}</span></button>
+        </div>
+        <div class="seg" id="dsub" role="tablist" aria-label="Vue" hidden></div>
+    </div>
+
+    {# ===== Écran en deux : liste à gauche, fiche du joueur à droite ===== #}
+    <div class="split" id="split">
+        <div class="listcol">
+    {# ===== Projection ===== #}
+    <div class="dsection active" id="sec-projection" role="tabpanel" aria-labelledby="tab-projection">
+        <div class="dpanel">
+            <div class="dph" title="Trophées déjà gagnés + combats restants × rythme du joueur (lissé avec ses semaines passées). Clique sur un joueur pour son détail, ↑ ↓ pour passer de l'un à l'autre."><img src="{{ asset('img/trophies.png') }}" alt=""><span class="ttl" id="proj-titre">Classement prévu</span></div>
+            <div class="dpb">
+                <div class="filters">
+                    <div class="seg" role="group" aria-label="Mode"><button type="button" class="active" data-m="pred" aria-pressed="true">Prévu</button><button type="button" data-m="actuel" aria-pressed="false">Maintenant</button></div>
+                    <div class="searchbox">
+                        <input class="search" id="recherche" type="search" placeholder="Chercher un joueur…" aria-label="Chercher un joueur" autocomplete="off">
+                        <span class="compte" id="compte" aria-live="polite">{{ kpis.joueurs }}</span>
+                    </div>
+                </div>
+                <div class="vide" id="aucun" hidden>Aucun résultat</div>
+                <div class="scroll"><div class="proj-list" id="proj-pred">
+                    <div class="legend" aria-label="Légende">
+                        <span title="Trophées déjà gagnés"><i class="k att"></i>Gagnés</span><span title="Trophées estimés d'ici la fin de la semaine"><i class="k def"></i>Estimés</span>
+                        <span title="Places gagnées ou perdues par rapport au classement actuel"><b class="pos">▲</b><b class="neg">▼</b></span>
+                        {% if promus > 0 %}<span><i class="k promo"></i>Top {{ promus }}</span>{% endif %}
+                        {% if relegues > 0 %}<span><i class="k reldz"></i>−{{ relegues }}</span>{% endif %}
+                    </div>
+                    {% for l in prediction %}
+                        {% set classe = (l.rangPredit == 1 ? 't1 ' : '') ~ (promus > 0 and l.rangPredit <= promus ? 'promo' : (relegues > 0 and l.rangPredit > taille - relegues ? 'demo' : '')) %}
+                        {{ m.ligne({
+                            i: loop.index0, rang: l.rangPredit, classe: classe,
+                            icone: m.hdv(l.joueur.niveauHdv), titre: l.joueur.nom,
+                            fav: m.favoriTroupes(favoris[l.joueur.id] ?? null, l.joueur), joueur: l.joueur.id,
+                            g: 100 * l.trophees / maxProj, b: 100 * (l.projetes - l.trophees) / maxProj,
+                            l1: l.trophees, l2: '+' ~ (l.projetes - l.trophees),
+                            picto: 'trophies', pastille: l.projetes, delta: m.delta(l.mouvement),
+                        }) }}
+                        {% if promus > 0 and l.rangPredit == promus %}<div class="zondiv" title="Seuil de promotion : trophées prévus du dernier promu"><img class="mi" src="{{ asset('img/stars.png') }}" alt="">TOP {{ promus }} · {{ l.projetes }}</div>{% endif %}
+                        {% if relegues > 0 and l.rangPredit == taille - relegues %}<div class="zondiv rel" title="Début de la zone de relégation">−{{ relegues }}</div>{% endif %}
+                    {% endfor %}
+                </div>
+                <div class="proj-list" id="proj-actuel" hidden>
+                    {% for l in prediction|sort((a, b) => a.rangActuel <=> b.rangActuel) %}
+                        {{ m.ligne({
+                            i: loop.index0, rang: l.rangActuel, classe: (l.rangActuel == 1 ? 't1 ' : '') ~ (promus > 0 and l.rangActuel <= promus ? 'promo' : (relegues > 0 and l.rangActuel > taille - relegues ? 'demo' : '')),
+                            icone: m.hdv(l.joueur.niveauHdv), titre: l.joueur.nom,
+                            fav: m.favoriTroupes(favoris[l.joueur.id] ?? null, l.joueur), joueur: l.joueur.id,
+                            g: maxTroph > 0 ? 100 * l.trophees / maxTroph : 0, b: 0,
+                            i1: 'attack', l1: (l.attaque.etoilesMoyennes is defined and l.attaque.etoilesMoyennes is not null ? l.attaque.etoilesMoyennes|number_format(2, ',') ~ '★' : '—'),
+                            i2: 'defense', l2: (l.defense.etoilesMoyennes is defined and l.defense.etoilesMoyennes is not null ? l.defense.etoilesMoyennes|number_format(2, ',') ~ '★' : '—'),
+                            picto: 'trophies', pastille: l.trophees, delta: '',
+                        }) }}
+                        {% if promus > 0 and l.rangActuel == promus %}<div class="zondiv"><img class="mi" src="{{ asset('img/stars.png') }}" alt="">TOP {{ promus }}</div>{% endif %}
+                        {% if relegues > 0 and l.rangActuel == taille - relegues %}<div class="zondiv rel">−{{ relegues }}</div>{% endif %}
+                    {% endfor %}
+                </div></div>
+            </div>
+        </div>
+    </div>
+
+    {# ===== Offensifs / Défensifs ===== #}
+    {% for cle, def in {offense: {titre: 'Top offensifs', sous: 'attaques gagnées', icone: 'attack', liste: scorers.attaquants, unite: 'att.'}, defense: {titre: 'Top défensifs', sous: 'défenses gagnées', icone: 'defense', liste: scorers.defenseurs, unite: 'déf.'}} %}
+        <div class="dsection" id="sec-{{ cle }}" role="tabpanel" aria-labelledby="tab-top">
+            <div class="dpanel">
+                <div class="dph"><img src="{{ asset('img/' ~ def.icone ~ '.png') }}" alt=""><span class="ttl">{{ def.titre }}</span></div>
+                <div class="dpb"><div class="dcards">
+                    {% for p in def.liste %}
+                        <div class="dcard selectable" data-joueur="{{ p.id }}" role="button" tabindex="0" aria-pressed="false" title="Cliquer pour voir le détail du joueur">
+                            {{ m.medaille(loop.index) }}{{ m.hdv(p.hdv) }}
+                            <div class="grow"><div class="cn">{{ p.nom }}</div>
+                                <div class="cs">{{ p.gagnees }}V {{ p.perdues }}D{% if p.etoilesMoyennes is not null %} · {{ p.etoilesMoyennes|number_format(2, ',') }}★{% endif %}</div>
+                                <div class="cf">{{ m.favoriTroupes(favoris[p.id] ?? null) }}</div></div>
+                            <div class="cv">{{ p.gagnees }}</div>
+                        </div>
+                    {% endfor %}
+                </div></div>
+            </div>
+        </div>
+    {% endfor %}
+
+    {# ===== Méta : tier list, carte popularité × réussite, tableau ===== #}
+    <div class="dsection" id="sec-meta" role="tabpanel" aria-labelledby="tab-meta">
+        <div class="dpanel">
+            <div class="dph"><img src="{{ asset('img/stars.png') }}" alt=""><span class="ttl">Méta</span></div>
+            <div class="dpb">
+                {# Une seule rangée de filtres, au-dessus de tout ce qu'elle pilote. #}
+                <div class="filters mfilters">
+                    <div class="seg" role="group" aria-label="Famille d'archétypes">
+                        <button type="button" class="active" data-mds="troupes" aria-pressed="true">Troupes</button>
+                        <button type="button" data-mds="heros" aria-pressed="false">Héros</button>
+                        <button type="button" data-mds="equipements" aria-pressed="false">Équipements</button>
+                    </div>
+                    <div class="seg" role="group" aria-label="Présentation">
+                        <button type="button" class="active" data-mvue="tiers" aria-pressed="true">Tier list</button>
+                        <button type="button" data-mvue="carte" aria-pressed="false">Carte</button>
+                        <button type="button" data-mvue="tableau" aria-pressed="false">Tableau</button>
+                    </div>
+                    <div class="mchips" id="mchips" role="group" aria-label="Filtrer par héros" hidden>
+                        <button type="button" class="active" data-mhero="" aria-pressed="true">Tous</button>
+                        {% for hero in equipementsArchetypes|keys|filter(h => h != 'Tous') %}<button type="button" data-mhero="{{ hero }}" aria-pressed="false" title="{{ hero }}">{{ m.icones([hero], 'xs') }}</button>{% endfor %}
+                    </div>
+                </div>
+
+                {% include 'groupe/_meta.html.twig' with {vue: metaVues.troupes, cle: 'troupes', idTableau: 'meta-troupes'} only %}
+                {% include 'groupe/_meta.html.twig' with {vue: metaVues.heros, cle: 'heros', idTableau: 'meta-heros'} only %}
+                {% include 'groupe/_meta.html.twig' with {vue: metaVues.equipements, cle: 'equipements', idTableau: 'equip-tous'} only %}
+
+                {# Détail de l'archétype épinglé, rempli par le script (le plus fort est épinglé d'office). #}
+                <aside class="mdetail" id="mdetail" aria-live="polite" hidden>
+                    <div class="md-icons" aria-hidden="true"></div>
+                    <div class="md-id">
+                        <h3 class="md-nom"></h3>
+                        <p class="md-sous"><span class="md-tier"></span><span class="md-rang"></span></p>
+                    </div>
+                    <div class="md-fig">
+                        <b class="md-taux"></b><span class="md-u">de 3★</span>
+                        <div class="md-meter" aria-hidden="true"><i></i><u></u></div>
+                        <small class="md-vs"></small>
+                    </div>
+                    <dl class="md-stats">
+                        <div><dt>★ moyenne</dt><dd data-k="etoiles"></dd></div>
+                        <div><dt>Destruction</dt><dd data-k="destruction"></dd></div>
+                        <div><dt>Attaques</dt><dd data-k="combats"></dd></div>
+                        <div><dt>Part</dt><dd data-k="part"></dd></div>
+                    </dl>
+                </aside>
+                <div class="mcompos" id="mcompos" data-url="{{ path('app_groupe_compositions', {id: groupe.id}) }}" hidden></div>
+            </div>
+        </div>
+    </div>
+
+    {# ===== Héros & équipements ===== #}
+    <div class="dsection" id="sec-heros" role="tabpanel" aria-labelledby="tab-meta">
+        <div class="dpanel">
+            <div class="dph"><img src="{{ asset('img/attack.png') }}" alt=""><span class="ttl">Héros</span></div>
+            <div class="dpb"><div class="dcards">
+                {% for h in heros %}
+                    <div class="dcard">{{ m.icones([h.nom]) }}<div class="grow"><div class="cn">{{ h.nom }}</div><div class="cs">{{ h.combats }} · {{ h.tauxTroisEtoiles|number_format(1, ',') }} % 3★</div></div><div class="cv">{{ h.combats }}</div></div>
+                {% else %}<div class="vide">Aucune donnée.</div>{% endfor %}
+            </div></div>
+        </div>
+        {% for hero, lignes in equipements %}
+            <div class="dpanel">
+                <div class="dph">{{ m.icones([hero], 'sm') }}<span class="ttl">{{ hero }}</span></div>
+                <div class="dpb"><div class="dcards">
+                    {% for e in lignes|slice(0, 6) %}
+                        <div class="dcard">{{ m.medaille(loop.index) }}{{ m.icones([e.nom]) }}<div class="grow"><div class="cn">{{ e.nom }}</div><div class="cs">{{ e.combats }} · {{ e.tauxTroisEtoiles|number_format(1, ',') }} % 3★</div></div><div class="cv">{{ e.tauxTroisEtoiles|number_format(0) }}%</div></div>
+                    {% endfor %}
+                </div></div>
+            </div>
+        {% endfor %}
+        {% if familiers %}
+            <div class="dpanel">
+                <div class="dph"><span class="ttl">Familiers</span></div>
+                <div class="dpb"><div class="dcards">
+                    {% for f in familiers|slice(0, 9) %}
+                        <div class="dcard">{{ m.icones([f.nom]) }}<div class="grow"><div class="cn">{{ f.nom }}</div><div class="cs">{{ f.combats }} · {{ f.tauxTroisEtoiles|number_format(1, ',') }} % 3★</div></div><div class="cv">{{ f.tauxTroisEtoiles|number_format(0) }}%</div></div>
+                    {% endfor %}
+                </div></div>
+            </div>
+        {% endif %}
+    </div>
+
+    {# ===== Défense par archétype ===== #}
+    <div class="dsection" id="sec-contre" role="tabpanel" aria-labelledby="tab-meta">
+        <div class="dpanel">
+            <div class="dph"><img src="{{ asset('img/defense.png') }}" alt=""><span class="ttl">Mieux contrés</span></div>
+            <div class="dpb"><div class="proj-list">
+                {% for l in affrontes|sort((a, b) => a.tauxTroisEtoiles <=> b.tauxTroisEtoiles)|slice(0, 12) %}
+                    {{ m.ligne({
+                        i: loop.index0, rang: loop.index, classe: loop.index <= 3 ? 'promo' : '',
+                        icone: m.icones(l.archetype|archetype_noms, 'sm'), titre: l.archetype,
+                        sous: l.combats ~ ' · ' ~ l.etoilesMoyennes|number_format(2, ',') ~ '★',
+                        g: 0, b: l.tauxTroisEtoiles, l1: '', i2: 'defense', l2: l.tauxTroisEtoiles|number_format(1, ',') ~ ' % de 3★ subies',
+                        pastille: l.tauxTroisEtoiles|number_format(1, ',') ~ ' %', delta: '',
+                    }) }}
+                {% else %}<div class="vide">Pas encore de données.</div>{% endfor %}
+            </div></div>
+        </div>
+        <div class="dpanel">
+            <div class="dph"><img src="{{ asset('img/defense.png') }}" alt=""><span class="ttl">Meilleurs défenseurs</span></div>
+            <div class="dpb"><div class="scroll"><table>
+                <thead><tr><th class="l">Joueur</th><th class="l">Défend bien contre</th><th class="l">Souffre contre</th></tr></thead>
+                <tbody>
+                {% for p in scorers.defenseurs %}
+                    {% set d = defenses[p.id] ?? null %}
+                    <tr><td class="l"><span class="player">{{ m.hdv(p.hdv) }}<a class="pname" href="{{ path('app_joueur', {groupe: groupe.id, joueur: p.id}) }}">{{ p.nom }}</a></span></td>
+                        <td class="l">{% if d %}{{ m.archetype(d.meilleur.archetype, d.meilleur.etoiles|number_format(1, ',') ~ ' ★ · ' ~ d.meilleur.n ~ ' déf.', 'sm') }}{% else %}—{% endif %}</td>
+                        <td class="l">{% if d and d.pire %}{{ m.archetype(d.pire.archetype, d.pire.etoiles|number_format(1, ',') ~ ' ★ · ' ~ d.pire.n ~ ' déf.', 'sm') }}{% else %}—{% endif %}</td></tr>
+                {% endfor %}
+                </tbody>
+            </table></div></div>
+        </div>
+    </div>
+
+        </div>
+        <aside class="detailcol" id="panneau" role="complementary" aria-label="Détail du joueur" aria-hidden="true">
+            <div class="pn-slot" id="pn-slot"></div>
+        </aside>
+    </div>
+
+    {# Une fiche par joueur : modèles inertes, copiés dans le panneau à la sélection. #}
+    <div id="fiches" hidden>
+        {% for l in prediction %}<template id="fiche-{{ l.joueur.id }}">{{ m.fiche(l, groupe.id, armees[l.joueur.id] ?? null) }}</template>{% endfor %}
+    </div>
+
+    <script>
+    (() => {
+        const $$ = (sel, racine = document) => [...racine.querySelectorAll(sel)];
+        const nav = document.getElementById('dnav');
+
+        // Chaque changement d'état passe par une transition fondue (API View Transitions) : plus de saut brutal.
+        // Sans prise en charge du navigateur, ou si l'utilisateur a demandé moins d'animations, l'action est appliquée directement.
+        const reduit = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const transition = (action) => {
+            if (!document.startViewTransition || reduit) return action();
+            // L'action ne s'exécute qu'une fois, même si le navigateur la lance deux fois (transition interrompue) :
+            let faite = false;
+            const executer = () => { if (!faite) { faite = true; action(); } };
+            // Sur la même page : simple fondu (la classe retire le glissement réservé aux changements de page).
+            document.documentElement.classList.add('vt-local');
+            const t = document.startViewTransition(executer);
+            t.finished.catch(() => {}).finally(() => document.documentElement.classList.remove('vt-local'));
+            // Filet de sécurité : si le navigateur tarde à dessiner (onglet en arrière-plan, machine lente),
+            // l'interface ne reste jamais figée, l'action s'applique quand même.
+            setTimeout(executer, 500);
+            return t;
+        };
+
+        // Onglets principaux -> vues (sections) qu'ils contiennent.
+        const GROUPES = {
+            projection: [{id: 'projection', label: 'Projection'}],
+            top: [{id: 'offense', label: 'Offensifs', icone: 'attack'}, {id: 'defense', label: 'Défensifs', icone: 'defense'}],
+            meta: [{id: 'meta', label: 'Archétypes', icone: 'stars'}, {id: 'heros', label: 'Héros les plus joués', icone: 'legende'}, {id: 'contre', label: 'Défense par archétype', icone: 'defense'}],
+        };
+        const groupeDe = (vue) => Object.keys(GROUPES).find((g) => GROUPES[g].some((v) => v.id === vue));
+        const icone = (nom) => `{{ asset('img/') }}${nom}.png`;
+        let vueCourante = 'projection';
+
+        // Hauteur de la barre collée en haut : le panneau de droite se cale juste dessous.
+        function majHauteurNav() { document.documentElement.style.setProperty('--navh', nav.offsetHeight + 'px'); }
+        addEventListener('resize', majHauteurNav);
+
+        function appliquerVue(vue, {defiler = true} = {}) {
+            const groupe = groupeDe(vue);
+            if (!groupe) return;
+            vueCourante = vue;
+
+            $$('#dtabs .dtab').forEach((b) => {
+                const actif = b.dataset.g === groupe;
+                b.classList.toggle('active', actif);
+                b.setAttribute('aria-selected', actif);
+                b.tabIndex = actif ? 0 : -1;
+            });
+
+            const sous = document.getElementById('dsub');
+            const vues = GROUPES[groupe];
+            sous.hidden = vues.length < 2;
+            sous.innerHTML = vues.length < 2 ? '' : vues.map((v) =>
+                `<button type="button" role="tab" data-v="${v.id}" class="${v.id === vue ? 'active' : ''}" aria-selected="${v.id === vue}" tabindex="${v.id === vue ? 0 : -1}">` +
+                `${v.icone ? `<img src="${icone(v.icone)}" alt="">` : ''}${v.label}</button>`).join('');
+
+            $$('.dsection').forEach((s) => s.classList.toggle('active', s.id === 'sec-' + vue));
+            history.replaceState(null, '', '#' + vue);
+            if (groupe === 'meta') document.dispatchEvent(new Event('fiche:fermer'));
+            majHauteurNav();
+
+            // Si la barre est collée en haut, on remonte au début du contenu de la nouvelle vue.
+            if (defiler && nav.getBoundingClientRect().top <= 1) {
+                document.getElementById('sec-' + vue).scrollIntoView({behavior: 'smooth', block: 'start'});
+            }
+        }
+
+        // Ouvre une vue ; animer: false au chargement de la page (rien à fondre).
+        function ouvrir(vue, options = {}) {
+            options.animer === false ? appliquerVue(vue, options) : transition(() => appliquerVue(vue, options));
+        }
+
+        $$('#dtabs .dtab').forEach((b) => b.addEventListener('click', () => ouvrir(GROUPES[b.dataset.g][0].id)));
+        document.getElementById('dsub').addEventListener('click', (e) => {
+            const b = e.target.closest('[data-v]');
+            if (b) ouvrir(b.dataset.v);
+        });
+
+        // Clavier : flèches / Début / Fin dans une liste d'onglets.
+        nav.addEventListener('keydown', (e) => {
+            const liste = e.target.closest('[role="tablist"]');
+            if (!liste || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
+            const boutons = $$('[role="tab"]', liste);
+            let i = boutons.indexOf(e.target);
+            i = e.key === 'Home' ? 0 : e.key === 'End' ? boutons.length - 1 : (i + (e.key === 'ArrowRight' ? 1 : -1) + boutons.length) % boutons.length;
+            e.preventDefault();
+            boutons[i].click();
+            (document.querySelector(`#dtabs [role="tab"][data-g="${groupeDe(vueCourante)}"]`) && ($$('[role="tab"]', liste).find((b) => b.classList.contains('active')) || boutons[i])).focus();
+        });
+
+        const depart = location.hash.slice(1);
+        ouvrir(groupeDe(depart) ? depart : 'projection', {defiler: false, animer: false});
+        addEventListener('hashchange', () => { const h = location.hash.slice(1); if (groupeDe(h) && h !== vueCourante) ouvrir(h, {defiler: false}); });
+
+        // Contrôles segmentés (un seul actif à la fois).
+        const segment = (selecteur, attribut, action) => $$(selecteur).forEach((b) => b.addEventListener('click', () => {
+            $$(selecteur).forEach((x) => { x.classList.toggle('active', x === b); x.setAttribute('aria-pressed', x === b); });
+            transition(() => action(b.dataset[attribut]));
+        }));
+        segment('[data-m]', 'm', (m) => {
+            document.getElementById('proj-pred').hidden = m !== 'pred';
+            document.getElementById('proj-actuel').hidden = m !== 'actuel';
+            document.getElementById('proj-titre').textContent = m === 'pred' ? 'Classement prévu en fin de semaine' : 'Classement actuel';
+        });
+
+        // Écran en deux : un clic sur un joueur ouvre sa fiche à droite, la liste glisse à gauche.
+        const ecran = document.getElementById('split');
+        const panneau = document.getElementById('panneau');
+        const emplacement = document.getElementById('pn-slot');
+        let courant = null;
+
+        const fermer = () => {
+            if (courant === null) return;
+            const precedent = $$(`[data-joueur="${courant}"].selected`)[0];
+            courant = null;
+            panneau.setAttribute('aria-hidden', 'true');
+            $$('.selectable.selected').forEach((x) => { x.classList.remove('selected'); x.setAttribute('aria-pressed', 'false'); });
+            // Sortie rapide de la fiche (déplacement + transparence), puis la liste reprend toute la largeur en fondu.
+            ecran.classList.add('closing');
+            setTimeout(() => {
+                if (courant !== null) return; // un autre joueur a été sélectionné entre-temps
+                transition(() => {
+                    ecran.classList.remove('has-detail', 'closing');
+                    document.body.classList.remove('has-detail');
+                });
+            }, 170);
+            precedent?.focus({preventScroll: true});
+        };
+        const selectionner = (id) => {
+            const modele = document.getElementById('fiche-' + id);
+            if (!modele) return;
+            const dejaOuvert = courant !== null;
+            const appliquer = () => {
+                emplacement.replaceChildren(modele.content.cloneNode(true));
+                emplacement.classList.remove('in');
+                void emplacement.offsetWidth; // relance l'animation d'entrée
+                emplacement.classList.add('in');
+                courant = id;
+                ecran.classList.remove('closing');
+                ecran.classList.add('has-detail');
+                document.body.classList.add('has-detail');
+                panneau.setAttribute('aria-hidden', 'false');
+                $$('.selectable.selected').forEach((x) => { x.classList.remove('selected'); x.setAttribute('aria-pressed', 'false'); });
+                $$(`.selectable[data-joueur="${id}"]`).forEach((x) => { x.classList.add('selected'); x.setAttribute('aria-pressed', 'true'); });
+                // Cale la page juste sous la barre : la fiche est ainsi entièrement visible dès l'ouverture.
+                const haut = ecran.getBoundingClientRect().top + scrollY - nav.offsetHeight - 8;
+                if (scrollY < haut) scrollTo({top: haut, behavior: 'smooth'});
+            };
+            // Ouverture : la liste se resserre en fondu. Passer d'un joueur à l'autre ne change que la fiche (déjà animée).
+            dejaOuvert ? appliquer() : transition(appliquer);
+        };
+        // Lignes visibles de la vue active, dans l'ordre d'affichage (pour naviguer aux flèches).
+        const lignesVisibles = () => $$('.dsection.active .selectable[data-joueur]').filter((x) => x.offsetParent !== null);
+
+        document.addEventListener('fiche:fermer', fermer);
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('[data-fermer]')) { fermer(); return; }
+            const ligne = e.target.closest('.selectable[data-joueur]');
+            if (!ligne || e.target.closest('a')) return;
+            ligne.dataset.joueur === courant ? fermer() : selectionner(ligne.dataset.joueur);
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') { fermer(); return; }
+            const ligne = e.target.closest?.('.selectable[data-joueur]');
+            if (ligne && e.target === ligne && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
+                ligne.dataset.joueur === courant ? fermer() : selectionner(ligne.dataset.joueur);
+                return;
+            }
+            if (courant !== null && (e.key === 'ArrowDown' || e.key === 'ArrowUp') && !e.target.closest?.('input, [role="tablist"]')) {
+                const lignes = lignesVisibles();
+                const i = lignes.findIndex((x) => x.dataset.joueur === courant);
+                const suivante = lignes[i + (e.key === 'ArrowDown' ? 1 : -1)];
+                if (suivante) {
+                    e.preventDefault();
+                    selectionner(suivante.dataset.joueur);
+                    suivante.scrollIntoView({block: 'nearest', behavior: 'smooth'});
+                }
+            }
+        });
+
+        // Recherche d'un joueur : filtre les deux classements (prévu et maintenant) pendant la saisie.
+        const champ = document.getElementById('recherche');
+        champ?.addEventListener('input', () => {
+            const q = champ.value.trim().toLowerCase();
+            let visibles = 0;
+            $$('#proj-pred .projrow, #proj-actuel .projrow').forEach((ligne) => {
+                const nom = ligne.querySelector('.pr-name .nm')?.textContent.toLowerCase() ?? '';
+                const ok = q === '' || nom.includes(q);
+                ligne.hidden = !ok;
+                if (ok && ligne.closest('#proj-pred')) visibles++;
+            });
+            // Les lignes « zone de promotion / relégation » n'ont de sens que dans la liste complète.
+            $$('#proj-pred .zondiv, #proj-actuel .zondiv').forEach((z) => { z.hidden = q !== ''; });
+            document.getElementById('compte').textContent = visibles + (visibles > 1 ? ' joueurs' : ' joueur');
+            document.getElementById('aucun').hidden = visibles > 0;
+        });
+
+        // ===== Méta : famille d'archétypes × présentation, avec un archétype épinglé =====
+        const meta = document.getElementById('sec-meta');
+        if (meta) {
+            const detail = document.getElementById('mdetail');
+            const chips = document.getElementById('mchips');
+            const etat = {ds: 'troupes', vue: 'tiers', hero: '', epingle: {}};
+            const nombre = (v, d = 1) => Number(v).toLocaleString('fr-FR', {minimumFractionDigits: d, maximumFractionDigits: d});
+            const dsActif = () => meta.querySelector(`.mdata[data-ds="${etat.ds}"]`);
+
+            // Bulle d'info : une seule, construite en textContent (les noms viennent de l'API, jamais en HTML).
+            const bulle = document.createElement('div');
+            bulle.className = 'mtip';
+            bulle.hidden = true;
+            bulle.setAttribute('role', 'tooltip');
+            document.body.appendChild(bulle);
+            const montrerBulle = (el) => {
+                const d = el.dataset;
+                bulle.replaceChildren();
+                const entete = document.createElement('div');
+                entete.className = 'mtip-head';
+                const cle = document.createElement('i');
+                cle.className = 'mtip-key tier-' + d.tier.toLowerCase();
+                const nom = document.createElement('span');
+                nom.textContent = d.nom;
+                entete.append(cle, nom);
+                const val = document.createElement('div');
+                val.className = 'mtip-val';
+                const b = document.createElement('b');
+                b.textContent = nombre(d.taux) + ' %';
+                const u = document.createElement('span');
+                u.textContent = ' de 3★';
+                val.append(b, u);
+                const lignes = document.createElement('div');
+                lignes.className = 'mtip-l';
+                lignes.textContent = d.combats + ' attaques · ' + nombre(d.part) + ' % du total · ' + nombre(d.etoiles, 2) + '★ en moyenne';
+                bulle.append(entete, val, lignes);
+                bulle.hidden = false;
+                const r = el.getBoundingClientRect();
+                const w = bulle.offsetWidth;
+                const h = bulle.offsetHeight;
+                const x = Math.max(8, Math.min(innerWidth - w - 8, r.left + r.width / 2 - w / 2));
+                let y = r.top - h - 10;
+                if (y < 8) y = r.bottom + 10;
+                bulle.style.left = x + 'px';
+                bulle.style.top = y + 'px';
+            };
+            const cacherBulle = () => { bulle.hidden = true; };
+
+            // Épingle un archétype : le détail se met à jour, les autres passent en retrait (emphase : une teinte, le reste en gris).
+            const epingler = (id) => {
+                const d = dsActif();
+                const source = d && d.querySelector(`.mtile[data-id="${id}"]`);
+                if (!source) return;
+                etat.epingle[etat.ds] = id;
+                $$('.mtile, .mpoint', d).forEach((el) => {
+                    el.classList.toggle('on', el.dataset.id === id);
+                    el.classList.toggle('dim', el.dataset.id !== id);
+                });
+                const s = source.dataset;
+                const mediane = parseFloat(d.dataset.mediane || '0');
+                detail.hidden = false;
+                detail.dataset.tier = s.tier.toLowerCase();
+                detail.querySelector('.md-icons').replaceChildren(source.querySelector('.mt-icons').cloneNode(true));
+                detail.querySelector('.md-nom').textContent = s.nom;
+                detail.querySelector('.md-tier').textContent = 'Palier ' + s.tier;
+                detail.querySelector('.md-rang').textContent = ' · n°' + s.rang + (s.hero ? ' · ' + s.hero : '');
+                detail.querySelector('.md-taux').textContent = nombre(s.taux) + ' %';
+                detail.querySelector('.md-meter i').style.width = Math.max(2, Math.min(100, s.taux)) + '%';
+                detail.querySelector('.md-meter u').style.left = Math.max(0, Math.min(100, mediane)) + '%';
+                const ecart = s.taux - mediane;
+                detail.querySelector('.md-vs').textContent = (ecart >= 0 ? '+' : '−') + nombre(Math.abs(ecart)) + ' pt vs médiane du groupe (' + nombre(mediane) + ' %)';
+                detail.querySelector('[data-k="etoiles"]').textContent = nombre(s.etoiles, 2) + ' ★';
+                detail.querySelector('[data-k="destruction"]').textContent = nombre(s.destruction, 0) + ' %';
+                detail.querySelector('[data-k="combats"]').textContent = s.combats;
+                detail.querySelector('[data-k="part"]').textContent = nombre(s.part) + ' %';
+                chargerCompos(source);
+            };
+
+            // Compositions exactes de l'archétype épinglé : fragment serveur, mis en cache, ancien rendu gardé (atténué) pendant le chargement.
+            const compos = document.getElementById('mcompos');
+            const cache = new Map();
+            let tri = 'jouees';
+            let courant = null;
+            const chargerCompos = async (source) => {
+                courant = source;
+                // Onglet Méta caché : rien à charger tant qu'on ne l'ouvre pas (le détail se rend visible -> l'observateur relance).
+                if (!meta.offsetParent) return;
+                const s = source.dataset;
+                const p = new URLSearchParams({famille: etat.ds, nom: s.nom, tri});
+                if (etat.ds === 'equipements' && s.hero) p.set('hero', s.hero);
+                const url = compos.dataset.url + '?' + p;
+                compos.hidden = false;
+                if (!cache.has(url)) {
+                    compos.classList.add('charge');
+                    try {
+                        const r = await fetch(url, {headers: {Accept: 'text/html'}});
+                        if (!r.ok) throw new Error(r.status);
+                        cache.set(url, await r.text());
+                    } catch (_) {
+                        if (courant === source) compos.classList.remove('charge');
+                        return;
+                    }
+                }
+                if (courant !== source) return;
+                compos.innerHTML = cache.get(url);
+                compos.classList.remove('charge');
+            };
+            if ('IntersectionObserver' in window) {
+                new IntersectionObserver((entrees) => { if (entrees.some((x) => x.isIntersecting) && courant && compos.hidden) chargerCompos(courant); }).observe(detail);
+            }
+            compos.addEventListener('click', (e) => {
+                const b = e.target.closest('[data-ctri]');
+                if (b && courant) { tri = b.dataset.ctri; chargerCompos(courant); }
+            });
+
+            const appliquer = () => {
+                $$('.mdata', meta).forEach((d) => { d.hidden = d.dataset.ds !== etat.ds; });
+                const d = dsActif();
+                if (!d) return;
+                $$('.mview', d).forEach((v) => { v.hidden = v.dataset.vue !== etat.vue; });
+                chips.hidden = etat.ds !== 'equipements';
+                $$('[data-mds]', meta).forEach((b) => { b.classList.toggle('active', b.dataset.mds === etat.ds); b.setAttribute('aria-pressed', b.dataset.mds === etat.ds); });
+                $$('[data-mvue]', meta).forEach((b) => { b.classList.toggle('active', b.dataset.mvue === etat.vue); b.setAttribute('aria-pressed', b.dataset.mvue === etat.vue); });
+                $$('[data-mhero]', meta).forEach((b) => { b.classList.toggle('active', b.dataset.mhero === etat.hero); b.setAttribute('aria-pressed', b.dataset.mhero === etat.hero); });
+                // Filtre par héros (équipements) : les marques d'un autre héros et les paliers vides disparaissent.
+                $$('.mtile, .mpoint, .projrow[data-hero]', d).forEach((el) => { el.hidden = etat.hero !== '' && el.dataset.hero !== etat.hero; });
+                $$('.tier', d).forEach((t) => { t.hidden = !t.querySelector('.mtile:not([hidden])'); });
+                const premier = d.querySelector('.mtile:not([hidden])');
+                const garde = etat.epingle[etat.ds];
+                const id = garde && d.querySelector(`.mtile[data-id="${garde}"]:not([hidden])`) ? garde : premier?.dataset.id;
+                if (id) epingler(id); else { detail.hidden = true; compos.hidden = true; }
+            };
+
+            // La médiane du taux de 3★ de chaque famille sert de repère au détail.
+            $$('.mdata', meta).forEach((d) => {
+                const taux = $$('.mtile', d).map((t) => parseFloat(t.dataset.taux)).sort((a, b) => a - b);
+                if (taux.length) {
+                    const milieu = taux.length >> 1;
+                    d.dataset.mediane = taux.length % 2 ? taux[milieu] : (taux[milieu - 1] + taux[milieu]) / 2;
+                }
+            });
+
+            $$('[data-mds]', meta).forEach((b) => b.addEventListener('click', () => { cacherBulle(); transition(() => { etat.ds = b.dataset.mds; appliquer(); }); }));
+            $$('[data-mvue]', meta).forEach((b) => b.addEventListener('click', () => { cacherBulle(); transition(() => { etat.vue = b.dataset.mvue; appliquer(); }); }));
+            $$('[data-mhero]', meta).forEach((b) => b.addEventListener('click', () => { transition(() => { etat.hero = b.dataset.mhero; appliquer(); }); }));
+
+            // Survol et clavier : la bulle ; clic : épingler.
+            meta.addEventListener('pointerover', (e) => { const el = e.target.closest('.mtile, .mpoint'); if (el && e.pointerType !== 'touch') montrerBulle(el); });
+            meta.addEventListener('pointerout', (e) => { if (e.target.closest('.mtile, .mpoint') && !e.relatedTarget?.closest?.('.mtile, .mpoint')) cacherBulle(); });
+            meta.addEventListener('focusin', (e) => { const el = e.target.closest('.mtile, .mpoint'); if (el) montrerBulle(el); });
+            meta.addEventListener('focusout', cacherBulle);
+            meta.addEventListener('click', (e) => { const el = e.target.closest('.mtile, .mpoint'); if (el) epingler(el.dataset.id); });
+
+            // Carte : la cible est « le point le plus proche » (jusqu'à 44 px), pas le seul pixel du marqueur.
+            meta.addEventListener('pointermove', (e) => {
+                const trace = e.target.closest('.m-plot');
+                if (!trace || e.target.closest('.mpoint') || e.pointerType === 'touch') return;
+                let meilleur = null;
+                let distance = 44;
+                $$('.mpoint:not([hidden])', trace).forEach((p) => {
+                    const r = p.getBoundingClientRect();
+                    const dist = Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2));
+                    if (dist < distance) { distance = dist; meilleur = p; }
+                });
+                if (meilleur) montrerBulle(meilleur); else cacherBulle();
+            });
+            meta.addEventListener('pointerleave', cacherBulle);
+            addEventListener('scroll', cacherBulle, {passive: true});
+
+            appliquer();
+        }
+    })();
+    </script>
+{% endblock %}

@@ -1,5 +1,8 @@
 twig:
     file_name_pattern: '*.twig'
+    globals:
+        # Pixel transparent : l'<img> des icônes garde sa balise, l'image vient de la planche (CSS), sans requête.
+        PIXEL: 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
 
 when@test:
     twig:

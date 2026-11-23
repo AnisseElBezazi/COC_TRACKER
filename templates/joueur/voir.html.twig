@@ -1,0 +1,95 @@
+{% extends 'base.html.twig' %}
+{% import '_macros.html.twig' as m %}
+
+{% block title %}{{ joueur.nom }} · {{ groupe.ligue.nom }}{% endblock %}
+
+{% block body %}
+    {% set c = ligue_accent(groupe.ligue) %}
+
+    <div class="dtop" style="--c1:{{ c[0] }};--c2:{{ c[1] }}">
+        <a class="backbtn backico" href="{{ path('app_groupe', {id: groupe.id}) }}" title="Retour au groupe" aria-label="Retour au groupe">←</a>
+        {% if groupe.ligue.urlIcone %}<img class="league" src="{{ groupe.ligue.urlIcone }}" alt="{{ groupe.ligue.nom }}" width="74" height="74">{% endif %}
+        <div>
+            <div class="t1">{{ joueur.nom }}</div>
+            <div class="t2">{{ joueur.tag }}{% if joueur.clanNom %} · {{ joueur.clanNom }}{% endif %} · {{ groupe.ligue.nom }}</div>
+        </div>
+        <div class="spacer"></div>
+        {% set sp = joueur.niveauHdv ? icone_planche('th' ~ joueur.niveauHdv) : null %}{% if sp %}<img class="sp hdv-big" src="{{ PIXEL }}" data-i="{{ sp.cle }}" style="{{ sp.style }}" alt="Hôtel de ville niveau {{ joueur.niveauHdv }}" title="HDV {{ joueur.niveauHdv }}" width="96" height="96">{% endif %}
+    </div>
+
+    <div class="dkpis">
+        <div class="dkpi" style="--kc:#ffc83a"><div class="v">{{ participation.trophees }}</div><div class="l">Trophées</div><div class="s">cette semaine</div></div>
+        <div class="dkpi" style="--kc:#7bf0ac"><div class="v">{{ participation.attaquesGagnees }}</div><div class="l">Attaques gagnées</div><div class="s">{{ participation.attaquesPerdues }} perdues</div></div>
+        <div class="dkpi" style="--kc:#6bb1ff"><div class="v">{{ participation.defensesGagnees }}</div><div class="l">Défenses gagnées</div><div class="s">{{ participation.defensesPerdues }} perdues</div></div>
+        <div class="dkpi" style="--kc:#cf9bff">
+            {% if attaques %}<div class="v" style="font-size:16px">{{ m.icones(attaques[0].archetype|archetype_noms, 'sm') }}</div><div class="l">{{ attaques[0].archetype }}</div><div class="s">archétype favori · {{ attaques[0].n }} attaques</div>
+            {% else %}<div class="v">—</div><div class="l">Archétype favori</div><div class="s">aucune attaque connue</div>{% endif %}
+        </div>
+    </div>
+
+    <div class="dpanel">
+        <div class="dph"><img src="{{ asset('img/legende.png') }}" alt=""><span class="ttl">Son armée la plus jouée</span></div>
+        <div class="dpb armywrap">{% if armee %}{{ m.armeeJeu(armee) }}{% else %}<div class="vide">Aucune armée connue pour ce joueur.</div>{% endif %}</div>
+    </div>
+
+    <div class="dpanel">
+        <div class="dph"><img src="{{ asset('img/attack.png') }}" alt=""><span class="ttl">Ses attaques</span></div>
+        <div class="dpb"><div class="proj-list">
+            {% for a in attaques %}
+                {{ m.ligne({
+                    i: loop.index0, rang: loop.index, classe: loop.index == 1 ? 't1 promo' : '',
+                    icone: m.icones(a.archetype|archetype_noms, 'sm'), titre: a.archetype,
+                    sous: a.n ~ ' attaques' ~ (a.heros ? ' · ' ~ a.heros : ''),
+                    g: a.tauxTroisEtoiles, b: 0, i1: 'stars', l1: a.etoiles|number_format(2, ',') ~ '★', l2: '',
+                    pastille: a.tauxTroisEtoiles|number_format(0) ~ ' % 3★', delta: '',
+                }) }}
+            {% else %}<div class="vide">Aucune attaque connue pour ce joueur.</div>{% endfor %}
+        </div></div>
+    </div>
+
+    <div class="dpanel">
+        <div class="dph"><img src="{{ asset('img/legende.png') }}" alt=""><span class="ttl">Ses archétypes de héros</span></div>
+        <div class="dpb"><div class="proj-list">
+            {% for h in herosJoues %}
+                {{ m.ligne({
+                    i: loop.index0, rang: loop.index, classe: loop.index == 1 ? 't1 promo' : '',
+                    icone: '', titre: h.archetype, titreHtml: m.herosParDeux(h.archetype),
+                    sous: h.n ~ ' attaque' ~ (h.n > 1 ? 's' : ''),
+                    g: h.tauxTroisEtoiles, b: 0, i1: 'stars', l1: h.etoiles|number_format(2, ',') ~ '★', l2: '',
+                    pastille: h.tauxTroisEtoiles|number_format(0) ~ ' % 3★', delta: '',
+                }) }}
+            {% else %}<div class="vide">Aucun héros connu pour ce joueur.</div>{% endfor %}
+        </div></div>
+    </div>
+
+    <div class="dpanel">
+        <div class="dph"><img src="{{ asset('img/legende.png') }}" alt=""><span class="ttl">Ses équipements</span></div>
+        <div class="dpb"><div class="proj-list">
+            {% for e in equipements|slice(0, 10) %}
+                {{ m.ligne({
+                    i: loop.index0, rang: loop.index, classe: loop.index == 1 ? 't1 promo' : '',
+                    icone: m.iconesEquipement(e), titre: e.equipements|join(' + '),
+                    sous: e.hero ~ ' · ' ~ e.combats ~ ' attaque' ~ (e.combats > 1 ? 's' : ''),
+                    g: e.tauxTroisEtoiles, b: 0, i1: 'stars', l1: e.etoilesMoyennes|number_format(2, ',') ~ '★', l2: '',
+                    pastille: e.tauxTroisEtoiles|number_format(0) ~ ' % 3★', delta: '',
+                }) }}
+            {% else %}<div class="vide">Aucun équipement connu pour ce joueur.</div>{% endfor %}
+        </div></div>
+    </div>
+
+    <div class="dpanel">
+        <div class="dph"><img src="{{ asset('img/defense.png') }}" alt=""><span class="ttl">Sa défense</span></div>
+        <div class="dpb"><div class="proj-list">
+            {% if defense %}
+                {% for a in defense.archetypes|sort((x, y) => x.etoiles <=> y.etoiles) %}
+                    {{ m.ligne({
+                        i: loop.index0, rang: loop.index, classe: loop.first ? 'promo' : (loop.last and defense.archetypes|length > 1 ? 'demo' : ''),
+                        icone: m.icones(a.archetype|archetype_noms, 'sm'), titre: a.archetype,
+                        sous: a.n ~ ' déf.', g: 0, b: a.pourcentage, l1: '', i2: 'defense', l2: a.pourcentage|number_format(0) ~ ' %',
+                        pastille: a.etoiles|number_format(2, ',') ~ '★', delta: '',
+                    }) }}
+                {% endfor %}
+            {% else %}<div class="vide">Aucune défense connue pour ce joueur.</div>{% endif %}
+        </div></div>
+    </div>
+{% endblock %}

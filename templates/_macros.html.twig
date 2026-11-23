@@ -1,0 +1,209 @@
+{# Pile d'icônes (troupes, héros, équipements) : jamais seulement un nom, toujours l'image. #}
+{% macro icones(noms, taille = '') %}
+    <span class="ico {{ taille }}">
+        {%- for nom in noms -%}
+            {%- set sp = icone_planche(nom) -%}
+            {%- if sp -%}<img class="sp" src="{{ PIXEL }}" data-i="{{ sp.cle }}" style="{{ sp.style }}" alt="{{ nom }}" title="{{ nom }}" width="38" height="38">
+            {%- else -%}<span class="fb" title="{{ nom }}">{{ nom|slice(0, 2)|upper }}</span>{%- endif -%}
+        {%- endfor -%}
+    </span>
+{% endmacro %}
+
+{% macro archetype(libelle, detail = null, taille = '') %}
+    {% import _self as m %}
+    <div class="arch">
+        {{ m.icones(libelle|archetype_noms, taille) }}
+        <div class="t">{{ libelle }}{% if detail %}<small>{{ detail }}</small>{% endif %}</div>
+    </div>
+{% endmacro %}
+
+{% macro etoiles(valeur) %}{% if valeur is not null %}{{ valeur|number_format(2, ',', '') }}<span class="gold" aria-label="étoiles">★</span>{% else %}—{% endif %}{% endmacro %}
+
+{# Médaille de rang : or, argent, bronze, puis pastille neutre. #}
+{% macro medaille(rang) %}{% if rang <= 3 %}<span class="medal m{{ rang }}">{{ rang }}</span>{% else %}<span class="rkn">{{ rang }}</span>{% endif %}{% endmacro %}
+
+{# Icône de l'hôtel de ville du joueur. #}
+{% macro hdv(niveau) %}{% set sp = niveau ? icone_planche('th' ~ niveau) : null %}{% if sp %}<img class="sp thi" src="{{ PIXEL }}" data-i="{{ sp.cle }}" style="{{ sp.style }}" alt="HDV {{ niveau }}" title="HDV {{ niveau }}" width="26" height="26">{% endif %}{% endmacro %}
+
+{#
+  Ligne de classement en carte (même mise en page pour la projection, la méta, les défenseurs…).
+  o : rang, icone (balisage sûr), titre, href, sous, joueur (id : rend la ligne sélectionnable, elle ouvre la fiche du joueur), g (barre or, %), b (barre bleue, %), l1, l2, i1/i2 (icône de légende : trophies, attack, defense, stars), pastille, picto (icône devant la pastille, ex. trophies), delta, classe, i.
+#}
+{% macro ligne(o) %}
+    {% import _self as m %}
+    <div class="projrow {{ o.classe ?? '' }}{{ o.joueur is defined ? ' selectable' : '' }}" {% if o.hero is defined %}data-hero="{{ o.hero }}"{% endif %}{% if o.joueur is defined %} data-joueur="{{ o.joueur }}" role="button" tabindex="0" aria-pressed="false" title="Cliquer pour voir le détail du joueur"{% endif %} style="animation-delay:{{ min((o.i ?? 0) * 26, 520) }}ms">
+        <div class="pr-rank">{{ m.medaille(o.rang) }}</div>
+        <div class="pr-name">
+            <div class="nm">{{ o.icone ?? '' }}{% if o.titreHtml is defined and o.titreHtml %}<span class="txt duos">{{ o.titreHtml }}</span>{% elseif o.href is defined and o.href %}<a class="txt" href="{{ o.href }}">{{ o.titre }}</a>{% else %}<span class="txt">{{ o.titre }}</span>{% endif %}</div>
+            {% if o.sous is defined and o.sous %}<div class="pr-sub">{{ o.sous }}</div>{% endif %}
+            {% if o.fav is defined %}<div class="pr-fav">{{ o.fav }}</div>{% endif %}
+        </div>
+        <div class="pr-bar-wrap">
+            <div class="pbar" role="img" aria-label="{{ o.l1 ?? '' }} {{ o.l2 ?? '' }}"><i class="att" style="width:{{ max(0, min(100, o.g ?? 0)) }}%"></i><i class="def" style="width:{{ max(0, min(100, o.b ?? 0)) }}%"></i></div>
+            <div class="pbar-lab"><span class="a">{% if o.i1 is defined %}<img class="mi" src="{{ asset('img/' ~ o.i1 ~ '.png') }}" alt="">{% endif %}{{ o.l1 ?? '' }}</span><span class="d">{% if o.i2 is defined %}<img class="mi" src="{{ asset('img/' ~ o.i2 ~ '.png') }}" alt="">{% endif %}{{ o.l2 ?? '' }}</span></div>
+        </div>
+        <div class="pr-end"><span class="pr-tot">{% if o.picto is defined %}<img class="mi tro" src="{{ asset('img/' ~ o.picto ~ '.png') }}" alt="trophées" title="trophées">{% endif %}{{ o.pastille }}</span><span class="pr-delta">{{ o.delta ?? '' }}</span></div>
+    </div>
+{% endmacro %}
+
+{% macro delta(mouvement) %}{% if mouvement > 0 %}<span class="pos">▲{{ mouvement }}</span>{% elseif mouvement < 0 %}<span class="neg">▼{{ -mouvement }}</span>{% else %}<span class="muted">–</span>{% endif %}{% endmacro %}
+
+{# Icônes d'un archétype d'équipement : le héros puis sa paire d'équipements. #}
+{% macro iconesEquipement(e, taille = 'sm') %}
+    {% import _self as m %}{{ m.icones([e.hero]|merge(e.equipements), taille) }}
+{% endmacro %}
+
+
+{# Une seule puce : l'archétype de troupes favori (version compacte pour les lignes). #}
+{% macro favoriTroupes(f, joueur = null) %}
+    {% import _self as m %}
+    {% if f %}<span class="fav" title="Armée favorite : {{ f.n }} attaque{{ f.n > 1 ? 's' : '' }} sur {{ f.total }}">{{ m.icones(f.archetype|archetype_noms, 'xs') }}<span class="ft">{{ f.archetype }}</span></span>
+    {% else %}{{ m.absent(joueur) }}{% endif %}
+{% endmacro %}
+
+{# Pourquoi on n'a pas d'armée pour ce joueur : pas encore analysé, ou aucune attaque ranked dans son journal. #}
+{% macro absent(joueur) %}
+    {% if joueur and joueur.importeLe is null %}<span class="fav none" title="Ce joueur n'a pas encore été analysé">Analyse en cours…</span>
+    {% else %}<span class="fav none" title="L'API ne garde que les 50 derniers combats d'un joueur, tous modes confondus : aucune attaque ranked n'y figure.">Pas d'attaque ranked récente</span>{% endif %}
+{% endmacro %}
+
+{# Note en étoiles sur 3 (étoiles pleines proportionnelles à la valeur). $inverse = vrai pour la défense. #}
+{% macro noteEtoiles(valeur, defense = false) %}
+    <span class="stars{{ defense ? ' def' : '' }}" style="--v:{{ (valeur / 3 * 100)|round }}%" role="img" aria-label="{{ valeur|number_format(2, ',') }} étoiles sur 3">★★★</span>
+{% endmacro %}
+
+{#
+  Fiche complète d'un joueur, affichée dans le panneau de droite : tout tient sans défilement.
+  l : ligne de la prédiction ; a : armée la plus jouée (voir armeeJeu) ou null.
+#}
+{% macro fiche(l, groupeId, a) %}
+    {% import _self as m %}
+    <div class="pn">
+        <header class="pn-head">
+            {{ m.medaille(l.rangPredit) }}
+            <div class="pn-id">
+                <h3>{{ l.joueur.nom }}</h3>
+                <p title="{{ l.joueur.clanNom ?? 'Sans clan' }} · rang prévu {{ l.rangPredit }} · rang actuel {{ l.rangActuel }}">{{ l.joueur.clanNom ?? '—' }} · #{{ l.rangActuel }} {{ m.delta(l.mouvement) }}</p>
+            </div>
+            {% if l.joueur.niveauHdv %}{% set spt = icone_planche('th' ~ l.joueur.niveauHdv) %}{% if spt %}<img class="sp hdv-big" src="{{ PIXEL }}" data-i="{{ spt.cle }}" style="{{ spt.style }}" alt="HDV {{ l.joueur.niveauHdv }}" title="HDV {{ l.joueur.niveauHdv }}" width="64" height="64">{% endif %}{% endif %}
+            <button type="button" class="pn-close" data-fermer aria-label="Fermer le détail">×</button>
+        </header>
+
+        {# Trophées : un calcul en trois chiffres. Le détail (combats restants × rythme) est dans l'infobulle. #}
+        <section class="pn-sec">
+            <div class="calcrow" title="{{ l.restants }} combat{{ l.restants > 1 ? 's' : '' }} restant{{ l.restants > 1 ? 's' : '' }} × {{ l.parCombat|number_format(1, ',') }} trophées par combat">
+                <div class="citem"><b><img class="mi tro" src="{{ asset('img/trophies.png') }}" alt="">{{ l.trophees }}</b><span>gagnés</span></div>
+                <span class="op">+</span>
+                <div class="citem"><b>{{ l.projetes - l.trophees }}</b><span>à venir</span></div>
+                <span class="op">=</span>
+                <div class="citem total"><b>{{ l.projetes }}</b><span>prévus</span></div>
+            </div>
+            <div class="progrow" title="{{ l.joues }} combats joués sur {{ l.joues + l.restants }}">
+                <img class="mi" src="{{ asset('img/attack.png') }}" alt="">
+                <div class="bar"><i style="width:{{ l.joues + l.restants > 0 ? max(2, (100 * l.joues / (l.joues + l.restants))|round) : 2 }}%"></i></div>
+                <b>{{ l.joues }}/{{ l.joues + l.restants }}</b>
+            </div>
+        </section>
+
+        {# Niveau : l'icône du jeu, les étoiles sur 3 et le chiffre. Le détail est dans l'infobulle. #}
+        <section class="pn-sec">
+            <div class="perf">
+                <div class="pcard" title="Étoiles prises par attaque en moyenne{% if l.attaque %} · {{ l.attaque.echantillon }} attaques analysées{% endif %} · {{ l.participation.attaquesGagnees }} gagnées, {{ l.participation.attaquesPerdues }} perdues">
+                    <span class="plabel"><img class="mi" src="{{ asset('img/attack.png') }}" alt="Attaque"></span>
+                    {% if l.attaque and l.attaque.etoilesMoyennes is not null %}
+                        <span class="prow">{{ m.noteEtoiles(l.attaque.etoilesMoyennes) }}<b>{{ l.attaque.etoilesMoyennes|number_format(2, ',') }}</b></span>
+                    {% else %}<span class="pdesc muted">—</span>{% endif %}
+                </div>
+                <div class="pcard def" title="Étoiles prises par ses adversaires en moyenne (moins = mieux){% if l.defense %} · {{ l.defense.echantillon }} défenses analysées{% endif %} · {{ l.participation.defensesGagnees }} gagnées, {{ l.participation.defensesPerdues }} perdues">
+                    <span class="plabel"><img class="mi" src="{{ asset('img/defense.png') }}" alt="Défense"></span>
+                    {% if l.defense and l.defense.etoilesMoyennes is not null %}
+                        <span class="prow">{{ m.noteEtoiles(l.defense.etoilesMoyennes, true) }}<b>{{ l.defense.etoilesMoyennes|number_format(2, ',') }}</b></span>
+                    {% else %}<span class="pdesc muted">—</span>{% endif %}
+                </div>
+            </div>
+        </section>
+
+        <section class="pn-sec pn-army">
+            {% if a %}{{ m.armeeJeu(a) }}{% else %}{{ m.absent(l.joueur) }}{% endif %}
+        </section>
+
+        <a class="btn-profil" href="{{ path('app_joueur', {groupe: groupeId, joueur: l.joueur.id}) }}">Voir le profil complet</a>
+    </div>
+{% endmacro %}
+
+
+{# Héros affichés par deux : « A + B » sur une ligne, « C + D » sur la suivante, chaque paire avec ses icônes. #}
+{% macro herosParDeux(libelle, taille = 'sm') %}
+    {% import _self as m %}
+    <span class="duos">
+        {% for duo in libelle|archetype_noms|batch(2) %}
+            <span class="duo">{{ m.icones(duo, taille) }}<span>{{ duo|join(' + ') }}</span></span>
+        {% endfor %}
+    </span>
+{% endmacro %}
+
+{# Une image (héros, troupe, sort, équipement, familier) ; initiales si l'icône manque. #}
+{% macro visuel(nom, classe = '') %}
+    {%- set sp = icone_planche(nom) -%}
+    {%- if sp -%}<img class="sp {{ classe }}" src="{{ PIXEL }}" data-i="{{ sp.cle }}" style="{{ sp.style }}" alt="{{ nom }}" title="{{ nom }}">
+    {%- else -%}<span class="fb {{ classe }}" title="{{ nom }}">{{ nom|slice(0, 2)|upper }}</span>{%- endif -%}
+{% endmacro %}
+
+{# Une unité de l'armée avec sa quantité en pastille, comme dans l'écran d'armée du jeu. #}
+{% macro unite(nom, quantite, genre = 'troupe') %}
+    {% import _self as m %}
+    <span class="unit {{ genre }}" title="{{ nom }} ×{{ quantite }}">{{ m.visuel(nom) }}<i class="qty">×{{ quantite }}</i></span>
+{% endmacro %}
+
+{#
+  Armée affichée comme l'écran du jeu : une carte par héros (avec son familier et ses deux équipements),
+  puis les troupes, les sorts, les engins de siège et le château de clan.
+  a : ['armee' => ArmeeDecodee, 'n' => attaques avec cette armée, 'total' => attaques analysées]
+#}
+{% macro armeeJeu(a) %}
+    {% import _self as m %}
+    {% set armee = a.armee %}
+    <div class="army">
+        {% if armee.herosDetail %}
+            <div class="heroes">
+                {% for h in armee.herosDetail %}
+                    <div class="hcard">
+                        {{ m.visuel(h.nom, 'hp') }}
+                        <span class="hname">{{ h.nom }}</span>
+                        {% if h.familier %}<span class="pet">{{ m.visuel(h.familier) }}</span>{% endif %}
+                        {% if h.equipements %}<span class="eqs">{% for e in h.equipements %}<span class="eq">{{ m.visuel(e) }}</span>{% endfor %}</span>{% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="aside">
+            <div class="agrp">
+                <div class="ahead">Troupes<b>{{ armee.placesTroupes }}</b></div>
+                <div class="units">{% for t in armee.troupesSansSieges %}{{ m.unite(t.nom, t.quantite) }}{% else %}<span class="muted">—</span>{% endfor %}</div>
+            </div>
+            <div class="arow">
+                <div class="agrp">
+                    <div class="ahead">Sorts<b>{{ armee.placesSorts }}</b></div>
+                    <div class="units">{% for t in armee.sorts %}{{ m.unite(t.nom, t.quantite, 'spell') }}{% else %}<span class="muted">—</span>{% endfor %}</div>
+                </div>
+                {% if armee.sieges %}
+                    <div class="agrp">
+                        <div class="ahead">Engins de siège</div>
+                        <div class="units">{% for t in armee.sieges %}{{ m.unite(t.nom, t.quantite, 'siege') }}{% endfor %}</div>
+                    </div>
+                {% endif %}
+            </div>
+            {% if armee.chateauTroupes or armee.chateauSorts %}
+                <div class="agrp">
+                    <div class="ahead">Château de clan</div>
+                    <div class="units">
+                        {% for t in armee.chateauTroupes %}{{ m.unite(t.nom, t.quantite) }}{% endfor %}
+                        {% for t in armee.chateauSorts %}{{ m.unite(t.nom, t.quantite, 'spell') }}{% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <p class="army-note" title="Armée jouée {{ a.n }} fois sur {{ a.total }} attaque{{ a.total > 1 ? 's' : '' }} analysée{{ a.total > 1 ? 's' : '' }}">×{{ a.n }}/{{ a.total }}</p>
+{% endmacro %}
+

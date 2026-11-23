@@ -1,0 +1,9 @@
+<!doctype html><meta charset=utf-8><body><pre id=out>wait</pre><script>
+(async()=>{
+const names=await (await fetch('/list.json')).json();
+const N=13,C=96;const cv=document.createElement('canvas');cv.width=cv.height=N*C;const g=cv.getContext('2d');
+g.imageSmoothingQuality='high';
+await Promise.all(names.map((n,i)=>new Promise(r=>{const im=new Image();im.onload=()=>{const s=Math.min(C/im.width,C/im.height);const w=im.width*s,h=im.height*s;g.drawImage(im,(i%N)*C+(C-w)/2,Math.floor(i/N)*C+(C-h)/2,w,h);r()};im.onerror=()=>r();im.src=n.src})));
+document.getElementById('out').textContent=cv.toDataURL('image/png');
+})();
+</script>
