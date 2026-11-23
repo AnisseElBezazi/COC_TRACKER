@@ -66,6 +66,10 @@ class Joueur
     #[Groups(['joueur:lire'])]
     private ?string $clanNom = null;
 
+    /** Date de la dernière tentative d'import complet (profil, combats, historique) ; null = jamais analysé. */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $importeLe = null;
+
     #[ORM\ManyToOne(inversedBy: 'joueurs')]
     #[Groups(['joueur:lire'])]
     private ?Ligue $ligue = null;
@@ -174,6 +178,18 @@ class Joueur
     public function getLigue(): ?Ligue
     {
         return $this->ligue;
+    }
+
+    public function getImporteLe(): ?\DateTimeImmutable
+    {
+        return $this->importeLe;
+    }
+
+    public function setImporteLe(?\DateTimeImmutable $importeLe): static
+    {
+        $this->importeLe = $importeLe;
+
+        return $this;
     }
 
     public function setLigue(?Ligue $ligue): static
