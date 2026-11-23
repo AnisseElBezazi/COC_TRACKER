@@ -1,0 +1,31 @@
+{#
+  Les compositions exactes rattachées à un archétype : chacune est une armée précise (mêmes troupes, mêmes quantités, mêmes sorts),
+  affichée comme dans le jeu, avec ses résultats. Fragment chargé au clic sur un archétype de la méta.
+#}
+{% import '_macros.html.twig' as m %}
+<div class="cv-head">
+    <h4>Compositions <small>{{ distinctes }} variante{{ distinctes > 1 ? 's' : '' }} · {{ total }} attaque{{ total > 1 ? 's' : '' }}</small></h4>
+    <div class="seg" role="group" aria-label="Ordre des compositions">
+        <button type="button" class="{{ requete.tri == 'jouees' ? 'active' : '' }}" data-ctri="jouees" aria-pressed="{{ requete.tri == 'jouees' ? 'true' : 'false' }}">Les plus jouées</button>
+        <button type="button" class="{{ requete.tri == 'taux' ? 'active' : '' }}" data-ctri="taux" aria-pressed="{{ requete.tri == 'taux' ? 'true' : 'false' }}" title="Au moins 3 attaques">Meilleur taux</button>
+    </div>
+</div>
+{% if variantes %}
+    <div class="cv-grid">
+        {% for v in variantes %}
+            <article class="cv-card">
+                <header class="cv-top">
+                    <span class="cv-rk">{{ loop.index }}</span>
+                    <b class="cv-rate">{{ v.taux|number_format(0) }}<small>% 3★</small></b>
+                    <span class="cv-meta" title="{{ v.etoiles|number_format(2, ',') }} étoiles et {{ v.destruction|number_format(0) }} % de destruction en moyenne">{{ v.combats }} attaque{{ v.combats > 1 ? 's' : '' }} · {{ v.etoiles|number_format(2, ',') }}★</span>
+                </header>
+                {{ m.armeeJeu({armee: v.armee, n: v.combats, total: total}) }}
+            </article>
+        {% endfor %}
+    </div>
+    {% if requete.tri == 'taux' and distinctes > variantes|length %}
+        <p class="cv-note">Seules les compositions jouées au moins 3 fois sont classées ici.</p>
+    {% endif %}
+{% else %}
+    <p class="cv-note">{{ requete.tri == 'taux' ? 'Aucune composition jouée 3 fois ou plus pour cet archétype.' : 'Aucune composition connue pour cet archétype.' }}</p>
+{% endif %}

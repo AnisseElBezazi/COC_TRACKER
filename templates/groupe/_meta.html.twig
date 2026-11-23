@@ -1,0 +1,80 @@
+{#
+  Une famille d'archétypes (troupes, héros ou équipements) sous ses trois présentations :
+    - tier list  : S > A > B > C, relatif au groupe (rampe dorée, une seule teinte : c'est un ordre)
+    - carte      : popularité (axe horizontal) × taux de 3 étoiles (axe vertical), l'archétype est son propre marqueur
+    - tableau    : le classement complet, jumeau accessible des deux autres
+
+  Variables : vue (résultat de MetaVue::construire), cle (troupes | heros | equipements), idTableau (id de la liste du tableau).
+#}
+{% import '_macros.html.twig' as m %}
+
+{% macro attrs(it) %}data-id="{{ it.id }}" data-nom="{{ it.nom }}" data-hero="{{ it.hero }}" data-combats="{{ it.combats }}" data-part="{{ it.part }}" data-taux="{{ it.taux }}" data-etoiles="{{ it.etoiles }}" data-destruction="{{ it.destruction }}" data-rang="{{ it.rang }}" data-tier="{{ it.tier }}"{% endmacro %}
+
+<div class="mdata" data-ds="{{ cle }}" {{ cle == 'troupes' ? '' : 'hidden' }}>
+    {% if vue.items %}
+
+        {# ---------- Tier list ---------- #}
+        <div class="mview" data-vue="tiers">
+            {% for palier, items in vue.tiers %}
+                {% if items %}
+                    <section class="tier tier-{{ palier|lower }}" aria-label="Palier {{ palier }}">
+                        <div class="tier-badge" aria-hidden="true"><b>{{ palier }}</b></div>
+                        <div class="tier-items">
+                            {% for it in items %}
+                                <button type="button" class="mtile" {{ _self.attrs(it) }} aria-label="{{ it.nom }} : {{ it.taux|number_format(1, ',') }} % de 3 étoiles sur {{ it.combats }} attaques">
+                                    <span class="mt-icons">{{ m.icones(it.icones, 'sm') }}</span>
+                                    <b class="mt-val">{{ it.taux|number_format(0) }}<small>%</small></b>
+                                    <span class="mt-n">{{ it.combats }}</span>
+                                </button>
+                            {% endfor %}
+                        </div>
+                    </section>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        {# ---------- Carte popularité × réussite ---------- #}
+        <div class="mview" data-vue="carte" hidden>
+            <div class="mmap{{ vue.items|length > 40 ? ' dense' : '' }}" role="group" aria-label="Carte : popularité en abscisse, taux de 3 étoiles en ordonnée">
+                <div class="m-yaxis" aria-hidden="true">{% for t in vue.axes.yTicks %}<span style="bottom:{{ t.pos }}%">{{ t.valeur }}</span>{% endfor %}</div>
+                <div class="m-plot">
+                    {% for t in vue.axes.yTicks %}<i class="m-gl m-gh" style="bottom:{{ t.pos }}%"></i>{% endfor %}
+                    {% for t in vue.axes.xTicks %}<i class="m-gl m-gv" style="left:{{ t.pos }}%"></i>{% endfor %}
+                    <i class="m-med m-gh" style="bottom:{{ vue.axes.medY }}%"></i>
+                    <i class="m-med m-gv" style="left:{{ vue.axes.medX }}%"></i>
+                    <span class="m-q q-tr" aria-hidden="true">Valeurs sûres</span>
+                    <span class="m-q q-tl" aria-hidden="true">Pépites</span>
+                    <span class="m-q q-br" aria-hidden="true">Pièges</span>
+                    <span class="m-q q-bl" aria-hidden="true">Délaissés</span>
+                    {% for it in vue.items %}
+                        <button type="button" class="mpoint tier-{{ it.tier|lower }}" style="left:{{ it.x }}%;bottom:{{ it.y }}%" {{ _self.attrs(it) }} aria-label="{{ it.nom }} : {{ it.taux|number_format(1, ',') }} % de 3 étoiles, {{ it.part|number_format(1, ',') }} % des attaques">
+                            <span class="mt-icons">{{ m.icones(it.icones, 'xs') }}</span>
+                        </button>
+                    {% endfor %}
+                </div>
+                <div class="m-xaxis" aria-hidden="true">{% for t in vue.axes.xTicks %}<span style="left:{{ t.pos }}%">{{ t.valeur|number_format(t.valeur == t.valeur|round ? 0 : 1, ',') }} %</span>{% endfor %}</div>
+                <div class="m-xtitle">Popularité · part des attaques</div>
+                <div class="m-ytitle">3★</div>
+            </div>
+        </div>
+
+        {# ---------- Tableau : le classement complet (jumeau accessible) ---------- #}
+        <div class="mview" data-vue="tableau" hidden>
+            <div class="proj-list" id="{{ idTableau }}">
+                {% for it in vue.items %}
+                    {{ m.ligne({
+                        i: loop.index0, rang: it.rang, classe: loop.index == 1 ? 't1 promo' : (loop.index <= 3 ? 'promo' : ''),
+                        icone: cle == 'heros' ? '' : m.icones(it.icones, 'sm'), titre: it.nom,
+                        titreHtml: cle == 'heros' ? m.herosParDeux(it.nom) : null,
+                        hero: it.hero,
+                        sous: (it.hero ? it.hero ~ ' · ' : '') ~ it.combats ~ ' · ' ~ it.etoiles|number_format(2, ',') ~ '★',
+                        g: it.taux, b: 0, i1: 'stars', l1: it.destruction|number_format(0) ~ ' %', l2: '',
+                        pastille: it.taux|number_format(1, ',') ~ ' % 3★', delta: '',
+                    }) }}
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <div class="vide">Pas assez de données</div>
+    {% endif %}
+</div>

@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Clash League Tracker{% endblock %}
+
+{% block body %}
+    <div class="card accueil" style="max-width:min(760px,100%);margin:8px auto 22px">
+        <div class="chead">
+            <div class="ic"><img src="{{ asset('img/legende.png') }}" alt="" width="46" height="46"></div>
+            <div><h1>Entre ton tag</h1></div>
+        </div>
+        <div class="cbody">
+            <form method="post" action="{{ path('app_rechercher') }}" onsubmit="this.querySelector('button').disabled=true;this.querySelector('button span').textContent='Analyse en cours…'">
+                <input type="hidden" name="_token" value="{{ csrf_token('rechercher') }}">
+                <label class="lab" for="tag">Tag du joueur</label>
+                <div class="field"><span class="pfx">#</span>
+                    <input id="tag" name="tag" placeholder="82U22QLL" required autocomplete="off" autocapitalize="characters" spellcheck="false" autofocus>
+                </div>
+                <button class="btn" type="submit"><img src="{{ asset('img/trophies.png') }}" alt="" width="30" height="30"><span>Voir mes ligues</span></button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

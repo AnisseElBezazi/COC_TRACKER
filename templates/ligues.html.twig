@@ -1,0 +1,117 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ligues de {{ joueur.nom }}{% endblock %}
+
+{% block body %}
+    {% set courant = semaines|first %}
+    {% set couleursJoueur = ligue_accent(joueur.ligue) %}
+    <a class="back" href="{{ path('app_accueil') }}">‹ Changer de joueur</a>
+
+    {# ===== En-tête joueur ===== #}
+    <section class="hero" style="--c1:{{ couleursJoueur[0] }};--c2:{{ couleursJoueur[1] }}">
+        <div class="hero-badge">
+            <img src="{{ joueur.ligue and joueur.ligue.urlIcone ? joueur.ligue.urlIcone : asset('img/legende.png') }}" alt="{{ joueur.ligue.nom ?? '' }}" width="132" height="132">
+        </div>
+        <div class="hero-txt">
+            <span class="eyebrow">{{ joueur.ligue.nom ?? 'Ligue classée' }}</span>
+            <h1>{{ joueur.nom }}</h1>
+            <div class="pills">
+                <span class="pill">{{ joueur.tag }}</span>
+                {% if joueur.clanNom %}<span class="pill"><img class="mi" src="{{ asset('img/defense.png') }}" alt="">{{ joueur.clanNom }}</span>{% endif %}
+                {% if joueur.niveauHdv %}<span class="pill gold">HDV {{ joueur.niveauHdv }}</span>{% endif %}
+            </div>
+        </div>
+        <div class="hero-kpis">
+            <div><b>{{ nombreSemaines }}</b><span>semaines</span></div>
+            <div><b>{{ meilleurRang ? '#' ~ meilleurRang : '—' }}</b><span>meilleur rang</span></div>
+            <div><b>{{ meilleurScore ?? '—' }}</b><span>record</span></div>
+        </div>
+    </section>
+
+    {# ===== Choix de la semaine ===== #}
+    <div class="ribbon"><span>TES LIGUES</span></div>
+    {% if semaines %}
+        <div class="lgrid">
+            {% for s in semaines %}
+                {% set c = ligue_accent(s.groupe.ligue) %}
+                <a class="lcard {{ loop.first ? 'live' : '' }}" href="{{ path('app_groupe', {id: s.groupe.id}) }}"
+                   style="--c1:{{ c[0] }};--c2:{{ c[1] }};--p:{{ s.niveau }};--i:{{ loop.index0 }}">
+                    <span class="lflag">{{ loop.first ? 'EN COURS' : 'PRÉCÉDENTE' }}</span>
+                    <div class="lart">
+                        <div class="lglow"></div>
+                        {% if s.groupe.ligue.urlIcone %}<img src="{{ s.groupe.ligue.urlIcone }}" alt="" width="140" height="140">{% endif %}
+                    </div>
+                    <div class="lname">{{ s.groupe.ligue.nom }}</div>
+                    <div class="ldate">{{ s.groupe.dateDebut|date('d/m') }} → {{ s.groupe.dateFin|date('d/m') }}</div>
+                    <div class="lrank">
+                        <div class="ring"><div class="ringin"><b>#{{ s.rang }}</b><span>sur {{ s.taille }}</span></div></div>
+                        <ul class="lstats">
+                            <li><img class="mi tro" src="{{ asset('img/trophies.png') }}" alt="trophées"><b>{{ s.participation.trophees }}</b></li>
+                            <li><img class="mi" src="{{ asset('img/attack.png') }}" alt="attaques gagnées"><b class="up">{{ s.participation.attaquesGagnees }}</b></li>
+                            <li><img class="mi" src="{{ asset('img/defense.png') }}" alt="défenses gagnées"><b class="up">{{ s.participation.defensesGagnees }}</b></li>
+                        </ul>
+                    </div>
+                    <span class="lcta">VOIR <i>›</i></span>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card"><div class="vide">Ce joueur n'est dans aucun groupe de ligue classée pour le moment.</div></div>
+    {% endif %}
+
+    {# ===== Historique ===== #}
+    {% if historique %}
+        <div class="ribbon"><span>HISTORIQUE</span></div>
+        {% set maxTrophees = max(historique|map(r => r.trophees)) %}
+        <div class="card histo">
+            <div class="chead"><div><h2>Trophées par semaine</h2></div></div>
+            {% macro semaine(r, i, maxTrophees) %}
+                {% set c = ligue_accent(r.ligue) %}
+                <details class="hw {{ r.classement <= 3 ? 'podium p' ~ r.classement : '' }}" style="--c1:{{ c[0] }};--c2:{{ c[1] }};--i:{{ i }}">
+                    <summary class="hrow">
+                        <div class="hdate">{{ r.saisonId|date('d/m') }}</div>
+                        <div class="hicon">{% if r.ligue and r.ligue.urlIcone %}<img src="{{ r.ligue.urlIcone }}" alt="{{ r.ligue.nom }}" title="{{ r.ligue.nom }}" width="44" height="44" loading="lazy">{% endif %}</div>
+                        <div class="hbar"><i style="width:{{ max(4, (100 * r.trophees / max(maxTrophees, 1))|round) }}%"></i><span>{{ r.trophees }}</span></div>
+                        <div class="hrk"><b>#{{ r.classement }}</b>{% if r.classement == 1 %}<img class="mi" src="{{ asset('img/trophies.png') }}" alt="1ʳᵉ place">{% endif %}</div>
+                    </summary>
+                    <div class="hdet">
+                        <span title="Attaques gagnées / perdues"><img class="mi" src="{{ asset('img/attack.png') }}" alt="Attaques"><b>{{ r.attaquesGagnees ?? 0 }}</b> / {{ r.attaquesPerdues ?? 0 }}</span>
+                        <span title="Étoiles prises en attaque"><img class="mi" src="{{ asset('img/stars.png') }}" alt="Étoiles">{{ r.etoilesAttaque ?? 0 }}</span>
+                        <span title="Défenses gagnées / perdues"><img class="mi" src="{{ asset('img/defense.png') }}" alt="Défenses"><b>{{ r.defensesGagnees ?? 0 }}</b> / {{ r.defensesPerdues ?? 0 }}</span>
+                        <span title="Combats possibles cette semaine">{{ r.combatsMax ?? '—' }} combats max</span>
+                    </div>
+                </details>
+            {% endmacro %}
+            {% import _self as h %}
+            <div class="histo-rows">
+                {% for r in historique|slice(0, 5) %}{{ h.semaine(r, loop.index0, maxTrophees) }}{% endfor %}
+                {% if historique|length > 5 %}
+                    <details class="hmore">
+                        <summary>Semaines plus anciennes <b>{{ historique|length - 5 }}</b></summary>
+                        <div class="histo-rows">{% for r in historique|slice(5) %}{{ h.semaine(r, loop.index0, maxTrophees) }}{% endfor %}</div>
+                    </details>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
+    <script>
+        (() => {
+            if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            document.querySelectorAll('.lcard').forEach((c) => {
+                c.addEventListener('pointermove', (e) => {
+                    const r = c.getBoundingClientRect();
+                    const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+                    c.style.transform = `translateY(-6px) rotateX(${-y * 5}deg) rotateY(${x * 7}deg)`;
+                });
+                c.addEventListener('pointerleave', () => { c.style.transform = ''; });
+            });
+            const h = document.querySelector('.hero');
+            for (let i = 0; i < 14; i++) {
+                const s = document.createElement('i'); s.className = 'spark';
+                s.style.left = (5 + i * 6.7) + '%'; s.style.animationDelay = (-i * .9) + 's'; s.style.animationDuration = (6 + i % 5) + 's';
+                s.style.width = s.style.height = (3 + i % 4) + 'px'; h.appendChild(s);
+            }
+        })();
+    </script>
+{% endblock %}
