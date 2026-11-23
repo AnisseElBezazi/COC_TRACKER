@@ -58,6 +58,10 @@ class Participation
     #[Groups(['participation:lire', 'groupe:lire'])]
     private ?int $defensesPerdues = null;
 
+    /** Nombre d'attaques (gagnées + perdues) au moment où les combats du joueur ont été importés ; null = jamais importés. */
+    #[ORM\Column(type: Types::SMALLINT, nullable: true)]
+    private ?int $attaquesImportees = null;
+
     #[ORM\ManyToOne(inversedBy: 'participations')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
@@ -69,6 +73,24 @@ class Participation
     #[Assert\NotNull]
     #[Groups(['participation:lire'])]
     private ?GroupeLigue $groupe = null;
+
+    public function getAttaquesImportees(): ?int
+    {
+        return $this->attaquesImportees;
+    }
+
+    public function setAttaquesImportees(?int $attaquesImportees): static
+    {
+        $this->attaquesImportees = $attaquesImportees;
+
+        return $this;
+    }
+
+    /** Vrai si le joueur a attaqué depuis le dernier import de ses combats (ou si ils n'ont jamais été importés). */
+    public function aDeNouvellesAttaques(): bool
+    {
+        return null === $this->attaquesImportees || $this->attaquesImportees < $this->attaquesGagnees + $this->attaquesPerdues;
+    }
 
     public function getId(): ?int
     {
