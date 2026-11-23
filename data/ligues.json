@@ -1,0 +1,314 @@
+{
+ "105000008": {
+  "nom": "Archer 2",
+  "promotion": {
+   "type": "pourcentage",
+   "valeur": 40
+  },
+  "relegation": {
+   "type": "pourcentage",
+   "valeur": 10
+  },
+  "source": "Supercell (notes de version, valeurs « New »)"
+ },
+ "105000009": {
+  "nom": "Archer 1",
+  "promotion": {
+   "type": "pourcentage",
+   "valeur": 40
+  },
+  "relegation": {
+   "type": "pourcentage",
+   "valeur": 10
+  },
+  "source": "Supercell (notes de version, valeurs « New »)"
+ },
+ "105000011": {
+  "nom": "Wizard 2",
+  "promotion": {
+   "type": "pourcentage",
+   "valeur": 40
+  },
+  "relegation": {
+   "type": "pourcentage",
+   "valeur": 15
+  },
+  "source": "Supercell (notes de version, valeurs « New »)"
+ },
+ "105000012": {
+  "nom": "Wizard 1",
+  "promotion": {
+   "type": "pourcentage",
+   "valeur": 35
+  },
+  "relegation": {
+   "type": "pourcentage",
+   "valeur": 15
+  },
+  "source": "Supercell (notes de version, valeurs « New »)"
+ },
+ "105000013": {
+  "nom": "Valkyrie 3",
+  "promotion": {
+   "type": "pourcentage",
+   "valeur": 30
+  },
+  "relegation": {
+   "type": "pourcentage",
+   "valeur": 15
+  },
+  "source": "Supercell (notes de version, valeurs « New »)"
+ },
+ "105000014": {
+  "nom": "Valkyrie 2",
+  "promotion": {
+   "type": "pourcentage",
+   "valeur": 40
+  },
+  "relegation": {
+   "type": "pourcentage",
+   "valeur": 15
+  },
+  "source": "Supercell (notes de version, valeurs « New »)"
+ },
+ "105000015": {
+  "nom": "Valkyrie 1",
+  "promotion": {
+   "type": "pourcentage",
+   "valeur": 35
+  },
+  "relegation": {
+   "type": "pourcentage",
+   "valeur": 15
+  },
+  "source": "Supercell (notes de version, valeurs « New »)"
+ },
+ "105000016": {
+  "nom": "Witch 3",
+  "promotion": {
+   "type": "pourcentage",
+   "valeur": 30
+  },
+  "relegation": {
+   "type": "pourcentage",
+   "valeur": 15
+  },
+  "source": "Supercell (notes de version, valeurs « New »)"
+ },
+ "105000017": {
+  "nom": "Witch 2",
+  "promotion": {
+   "type": "pourcentage",
+   "valeur": 40
+  },
+  "relegation": {
+   "type": "pourcentage",
+   "valeur": 15
+  },
+  "source": "Supercell (notes de version, valeurs « New »)"
+ },
+ "105000018": {
+  "nom": "Witch 1",
+  "promotion": {
+   "type": "pourcentage",
+   "valeur": 35
+  },
+  "relegation": {
+   "type": "pourcentage",
+   "valeur": 15
+  },
+  "source": "Supercell (notes de version, valeurs « New »)"
+ },
+ "105000019": {
+  "nom": "Golem 3",
+  "promotion": {
+   "type": "pourcentage",
+   "valeur": 30
+  },
+  "relegation": {
+   "type": "pourcentage",
+   "valeur": 15
+  },
+  "source": "Supercell (notes de version, valeurs « New »)"
+ },
+ "105000020": {
+  "nom": "Golem 2",
+  "promotion": {
+   "type": "pourcentage",
+   "valeur": 35
+  },
+  "relegation": {
+   "type": "pourcentage",
+   "valeur": 20
+  },
+  "source": "Supercell (notes de version, valeurs « New »)"
+ },
+ "105000021": {
+  "nom": "Golem 1",
+  "promotion": {
+   "type": "pourcentage",
+   "valeur": 30
+  },
+  "relegation": {
+   "type": "pourcentage",
+   "valeur": 20
+  },
+  "source": "Supercell (notes de version, valeurs « New »)"
+ },
+ "105000022": {
+  "nom": "P.E.K.K.A 3",
+  "promotion": {
+   "type": "pourcentage",
+   "valeur": 30
+  },
+  "relegation": {
+   "type": "pourcentage",
+   "valeur": 20
+  },
+  "source": "Supercell (notes de version, valeurs « New »)"
+ },
+ "105000023": {
+  "nom": "P.E.K.K.A 2",
+  "promotion": {
+   "type": "pourcentage",
+   "valeur": 35
+  },
+  "relegation": {
+   "type": "pourcentage",
+   "valeur": 20
+  },
+  "source": "Supercell (notes de version, valeurs « New »)"
+ },
+ "105000024": {
+  "nom": "P.E.K.K.A 1",
+  "promotion": {
+   "type": "pourcentage",
+   "valeur": 30
+  },
+  "relegation": {
+   "type": "pourcentage",
+   "valeur": 20
+  },
+  "source": "Supercell (notes de version, valeurs « New »)"
+ },
+ "105000025": {
+  "nom": "Titan 3",
+  "promotion": {
+   "type": "pourcentage",
+   "valeur": 25
+  },
+  "relegation": {
+   "type": "pourcentage",
+   "valeur": 20
+  },
+  "source": "Supercell (notes de version, valeurs « New »)"
+ },
+ "105000026": {
+  "nom": "Titan 2",
+  "promotion": {
+   "type": "pourcentage",
+   "valeur": 35
+  },
+  "relegation": {
+   "type": "pourcentage",
+   "valeur": 20
+  },
+  "source": "Supercell (notes de version, valeurs « New »)"
+ },
+ "105000027": {
+  "nom": "Titan 1",
+  "promotion": {
+   "type": "pourcentage",
+   "valeur": 30
+  },
+  "relegation": {
+   "type": "pourcentage",
+   "valeur": 20
+  },
+  "source": "Supercell (notes de version, valeurs « New »)"
+ },
+ "105000028": {
+  "nom": "Dragon 3",
+  "promotion": {
+   "type": "pourcentage",
+   "valeur": 25
+  },
+  "relegation": {
+   "type": "pourcentage",
+   "valeur": 20
+  },
+  "source": "Supercell (notes de version, valeurs « New »)"
+ },
+ "105000029": {
+  "nom": "Dragon 2",
+  "promotion": {
+   "type": "pourcentage",
+   "valeur": 20
+  },
+  "relegation": {
+   "type": "pourcentage",
+   "valeur": 20
+  },
+  "source": "Supercell (notes de version, valeurs « New »)"
+ },
+ "105000030": {
+  "nom": "Dragon 1",
+  "promotion": {
+   "type": "pourcentage",
+   "valeur": 20
+  },
+  "relegation": {
+   "type": "pourcentage",
+   "valeur": 20
+  },
+  "source": "Supercell (notes de version, valeurs « New »)"
+ },
+ "105000031": {
+  "nom": "Electro Dragon 3",
+  "promotion": {
+   "type": "pourcentage",
+   "valeur": 20
+  },
+  "relegation": {
+   "type": "pourcentage",
+   "valeur": 20
+  },
+  "source": "Supercell (notes de version, valeurs « New »)"
+ },
+ "105000032": {
+  "nom": "Electro Dragon 2",
+  "promotion": {
+   "type": "pourcentage",
+   "valeur": 20
+  },
+  "relegation": {
+   "type": "pourcentage",
+   "valeur": 20
+  },
+  "source": "Supercell (notes de version, valeurs « New »)"
+ },
+ "105000034": {
+  "nom": "Légende III",
+  "promotion": {
+   "type": "rang",
+   "valeur": 5
+  },
+  "relegation": {
+   "type": "pourcentage",
+   "valeur": 15
+  },
+  "source": "clashinsight.com (non officiel)"
+ },
+ "105000035": {
+  "nom": "Légende II",
+  "promotion": {
+   "type": "rang",
+   "valeur": 3
+  },
+  "relegation": {
+   "type": "pourcentage",
+   "valeur": 15
+  },
+  "source": "clashinsight.com (non officiel)"
+ }
+}
