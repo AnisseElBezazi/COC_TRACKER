@@ -1,0 +1,1245 @@
+[
+ {
+  "nom": "Barbarian King",
+  "type": "heros",
+  "idJeu": 0,
+  "place": null,
+  "super": false,
+  "source": "heroes"
+ },
+ {
+  "nom": "Archer Queen",
+  "type": "heros",
+  "idJeu": 1,
+  "place": null,
+  "super": false,
+  "source": "heroes"
+ },
+ {
+  "nom": "Grand Warden",
+  "type": "heros",
+  "idJeu": 2,
+  "place": null,
+  "super": false,
+  "source": "heroes"
+ },
+ {
+  "nom": "Royal Champion",
+  "type": "heros",
+  "idJeu": 4,
+  "place": null,
+  "super": false,
+  "source": "heroes"
+ },
+ {
+  "nom": "Minion Prince",
+  "type": "heros",
+  "idJeu": 6,
+  "place": null,
+  "super": false,
+  "source": "heroes"
+ },
+ {
+  "nom": "Dragon Duke",
+  "type": "heros",
+  "idJeu": 7,
+  "place": null,
+  "super": false,
+  "source": "heroes"
+ },
+ {
+  "nom": "Barbarian",
+  "type": "troupe",
+  "idJeu": 0,
+  "place": 1,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Archer",
+  "type": "troupe",
+  "idJeu": 1,
+  "place": 1,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Goblin",
+  "type": "troupe",
+  "idJeu": 2,
+  "place": 1,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Giant",
+  "type": "troupe",
+  "idJeu": 3,
+  "place": 5,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Wall Breaker",
+  "type": "troupe",
+  "idJeu": 4,
+  "place": 2,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Balloon",
+  "type": "troupe",
+  "idJeu": 5,
+  "place": 5,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Wizard",
+  "type": "troupe",
+  "idJeu": 6,
+  "place": 4,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Healer",
+  "type": "troupe",
+  "idJeu": 7,
+  "place": 14,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Dragon",
+  "type": "troupe",
+  "idJeu": 8,
+  "place": 20,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "P.E.K.K.A",
+  "type": "troupe",
+  "idJeu": 9,
+  "place": 25,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Minion",
+  "type": "troupe",
+  "idJeu": 10,
+  "place": 2,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Hog Rider",
+  "type": "troupe",
+  "idJeu": 11,
+  "place": 5,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Valkyrie",
+  "type": "troupe",
+  "idJeu": 12,
+  "place": 8,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Golem",
+  "type": "troupe",
+  "idJeu": 13,
+  "place": 30,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Witch",
+  "type": "troupe",
+  "idJeu": 15,
+  "place": 12,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Lava Hound",
+  "type": "troupe",
+  "idJeu": 17,
+  "place": 30,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Bowler",
+  "type": "troupe",
+  "idJeu": 22,
+  "place": 6,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Baby Dragon",
+  "type": "troupe",
+  "idJeu": 23,
+  "place": 10,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Miner",
+  "type": "troupe",
+  "idJeu": 24,
+  "place": 6,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Yeti",
+  "type": "troupe",
+  "idJeu": 53,
+  "place": 18,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Ice Golem",
+  "type": "troupe",
+  "idJeu": 58,
+  "place": 15,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Electro Dragon",
+  "type": "troupe",
+  "idJeu": 59,
+  "place": 30,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Dragon Rider",
+  "type": "troupe",
+  "idJeu": 65,
+  "place": 25,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Headhunter",
+  "type": "troupe",
+  "idJeu": 82,
+  "place": 6,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Electro Titan",
+  "type": "troupe",
+  "idJeu": 95,
+  "place": 32,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Apprentice Warden",
+  "type": "troupe",
+  "idJeu": 97,
+  "place": 20,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Root Rider",
+  "type": "troupe",
+  "idJeu": 110,
+  "place": 20,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Druid",
+  "type": "troupe",
+  "idJeu": 123,
+  "place": 16,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Thrower",
+  "type": "troupe",
+  "idJeu": 132,
+  "place": 16,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Furnace",
+  "type": "troupe",
+  "idJeu": 150,
+  "place": 18,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Ruin Witch",
+  "type": "troupe",
+  "idJeu": 109,
+  "place": 26,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Meteor Golem",
+  "type": "troupe",
+  "idJeu": 177,
+  "place": 40,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Super Barbarian",
+  "type": "troupe",
+  "idJeu": 26,
+  "place": 5,
+  "super": true,
+  "source": "troops"
+ },
+ {
+  "nom": "Super Archer",
+  "type": "troupe",
+  "idJeu": 27,
+  "place": 12,
+  "super": true,
+  "source": "troops"
+ },
+ {
+  "nom": "Super Wall Breaker",
+  "type": "troupe",
+  "idJeu": 28,
+  "place": 8,
+  "super": true,
+  "source": "troops"
+ },
+ {
+  "nom": "Super Giant",
+  "type": "troupe",
+  "idJeu": 29,
+  "place": 10,
+  "super": true,
+  "source": "troops"
+ },
+ {
+  "nom": "Sneaky Goblin",
+  "type": "troupe",
+  "idJeu": 55,
+  "place": 3,
+  "super": true,
+  "source": "troops"
+ },
+ {
+  "nom": "Super Miner",
+  "type": "troupe",
+  "idJeu": 56,
+  "place": 24,
+  "super": true,
+  "source": "troops"
+ },
+ {
+  "nom": "Rocket Balloon",
+  "type": "troupe",
+  "idJeu": 57,
+  "place": 8,
+  "super": true,
+  "source": "troops"
+ },
+ {
+  "nom": "Inferno Dragon",
+  "type": "troupe",
+  "idJeu": 63,
+  "place": 15,
+  "super": true,
+  "source": "troops"
+ },
+ {
+  "nom": "Super Valkyrie",
+  "type": "troupe",
+  "idJeu": 64,
+  "place": 20,
+  "super": true,
+  "source": "troops"
+ },
+ {
+  "nom": "Super Witch",
+  "type": "troupe",
+  "idJeu": 66,
+  "place": 40,
+  "super": true,
+  "source": "troops"
+ },
+ {
+  "nom": "Ice Hound",
+  "type": "troupe",
+  "idJeu": 76,
+  "place": 40,
+  "super": true,
+  "source": "troops"
+ },
+ {
+  "nom": "Super Bowler",
+  "type": "troupe",
+  "idJeu": 80,
+  "place": 30,
+  "super": true,
+  "source": "troops"
+ },
+ {
+  "nom": "Super Dragon",
+  "type": "troupe",
+  "idJeu": 81,
+  "place": 40,
+  "super": true,
+  "source": "troops"
+ },
+ {
+  "nom": "Super Wizard",
+  "type": "troupe",
+  "idJeu": 83,
+  "place": 10,
+  "super": true,
+  "source": "troops"
+ },
+ {
+  "nom": "Super Minion",
+  "type": "troupe",
+  "idJeu": 84,
+  "place": 12,
+  "super": true,
+  "source": "troops"
+ },
+ {
+  "nom": "Super Hog Rider",
+  "type": "troupe",
+  "idJeu": 98,
+  "place": 12,
+  "super": true,
+  "source": "troops"
+ },
+ {
+  "nom": "Super Yeti",
+  "type": "troupe",
+  "idJeu": 147,
+  "place": 35,
+  "super": true,
+  "source": "troops"
+ },
+ {
+  "nom": "Barch Squad",
+  "type": "troupe",
+  "idJeu": 195,
+  "place": 15,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Giant Wizard Squad",
+  "type": "troupe",
+  "idJeu": 196,
+  "place": 25,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Wall Breaker Squad",
+  "type": "troupe",
+  "idJeu": 197,
+  "place": 8,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Minion Squad",
+  "type": "troupe",
+  "idJeu": 198,
+  "place": 12,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Balloon Squad",
+  "type": "troupe",
+  "idJeu": 199,
+  "place": 16,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Golem Witch Squad",
+  "type": "troupe",
+  "idJeu": 200,
+  "place": 55,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Hog Rider Squad",
+  "type": "troupe",
+  "idJeu": 201,
+  "place": 48,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Miner Squad",
+  "type": "troupe",
+  "idJeu": 202,
+  "place": 48,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Healer Squad",
+  "type": "troupe",
+  "idJeu": 203,
+  "place": 70,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "P.E.K.K.A Titan Squad",
+  "type": "troupe",
+  "idJeu": 204,
+  "place": 46,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Dragon Squad",
+  "type": "troupe",
+  "idJeu": 205,
+  "place": 85,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Baby Dragon Squad",
+  "type": "troupe",
+  "idJeu": 206,
+  "place": 26,
+  "super": false,
+  "source": "troops"
+ },
+ {
+  "nom": "Lightning",
+  "type": "sort",
+  "idJeu": 0,
+  "place": 1,
+  "super": false,
+  "source": "spells"
+ },
+ {
+  "nom": "Healing",
+  "type": "sort",
+  "idJeu": 1,
+  "place": 2,
+  "super": false,
+  "source": "spells"
+ },
+ {
+  "nom": "Rage",
+  "type": "sort",
+  "idJeu": 2,
+  "place": 2,
+  "super": false,
+  "source": "spells"
+ },
+ {
+  "nom": "Jump",
+  "type": "sort",
+  "idJeu": 3,
+  "place": 2,
+  "super": false,
+  "source": "spells"
+ },
+ {
+  "nom": "Freeze",
+  "type": "sort",
+  "idJeu": 5,
+  "place": 1,
+  "super": false,
+  "source": "spells"
+ },
+ {
+  "nom": "Poison",
+  "type": "sort",
+  "idJeu": 9,
+  "place": 1,
+  "super": false,
+  "source": "spells"
+ },
+ {
+  "nom": "Earthquake",
+  "type": "sort",
+  "idJeu": 10,
+  "place": 1,
+  "super": false,
+  "source": "spells"
+ },
+ {
+  "nom": "Haste",
+  "type": "sort",
+  "idJeu": 11,
+  "place": 1,
+  "super": false,
+  "source": "spells"
+ },
+ {
+  "nom": "Clone",
+  "type": "sort",
+  "idJeu": 16,
+  "place": 3,
+  "super": false,
+  "source": "spells"
+ },
+ {
+  "nom": "Skeleton",
+  "type": "sort",
+  "idJeu": 17,
+  "place": 1,
+  "super": false,
+  "source": "spells"
+ },
+ {
+  "nom": "Bat",
+  "type": "sort",
+  "idJeu": 28,
+  "place": 1,
+  "super": false,
+  "source": "spells"
+ },
+ {
+  "nom": "Invisibility",
+  "type": "sort",
+  "idJeu": 35,
+  "place": 1,
+  "super": false,
+  "source": "spells"
+ },
+ {
+  "nom": "Recall",
+  "type": "sort",
+  "idJeu": 53,
+  "place": 2,
+  "super": false,
+  "source": "spells"
+ },
+ {
+  "nom": "Overgrowth",
+  "type": "sort",
+  "idJeu": 70,
+  "place": 2,
+  "super": false,
+  "source": "spells"
+ },
+ {
+  "nom": "Revive",
+  "type": "sort",
+  "idJeu": 98,
+  "place": 2,
+  "super": false,
+  "source": "spells"
+ },
+ {
+  "nom": "Ice Block",
+  "type": "sort",
+  "idJeu": 109,
+  "place": 1,
+  "super": false,
+  "source": "spells"
+ },
+ {
+  "nom": "Angry Spell",
+  "type": "sort",
+  "idJeu": 123,
+  "place": 1,
+  "super": false,
+  "source": "spells"
+ },
+ {
+  "nom": "Totem",
+  "type": "sort",
+  "idJeu": 120,
+  "place": 1,
+  "super": false,
+  "source": "spells"
+ },
+ {
+  "nom": "Heroic",
+  "type": "sort",
+  "idJeu": 153,
+  "place": 2,
+  "super": false,
+  "source": "spells"
+ },
+ {
+  "nom": "Wall Wrecker",
+  "type": "troupe",
+  "idJeu": 51,
+  "place": 1,
+  "super": false,
+  "source": "sieges"
+ },
+ {
+  "nom": "Battle Blimp",
+  "type": "troupe",
+  "idJeu": 52,
+  "place": 1,
+  "super": false,
+  "source": "sieges"
+ },
+ {
+  "nom": "Stone Slammer",
+  "type": "troupe",
+  "idJeu": 62,
+  "place": 1,
+  "super": false,
+  "source": "sieges"
+ },
+ {
+  "nom": "Siege Barracks",
+  "type": "troupe",
+  "idJeu": 75,
+  "place": 1,
+  "super": false,
+  "source": "sieges"
+ },
+ {
+  "nom": "Log Launcher",
+  "type": "troupe",
+  "idJeu": 87,
+  "place": 1,
+  "super": false,
+  "source": "sieges"
+ },
+ {
+  "nom": "Flame Flinger",
+  "type": "troupe",
+  "idJeu": 91,
+  "place": 1,
+  "super": false,
+  "source": "sieges"
+ },
+ {
+  "nom": "Battle Drill",
+  "type": "troupe",
+  "idJeu": 92,
+  "place": 1,
+  "super": false,
+  "source": "sieges"
+ },
+ {
+  "nom": "Troop Launcher",
+  "type": "troupe",
+  "idJeu": 135,
+  "place": 1,
+  "super": false,
+  "source": "sieges"
+ },
+ {
+  "nom": "Sky Wagon",
+  "type": "troupe",
+  "idJeu": 188,
+  "place": 1,
+  "super": false,
+  "source": "sieges"
+ },
+ {
+  "nom": "Lassi",
+  "type": "familier",
+  "idJeu": 0,
+  "place": null,
+  "super": false,
+  "source": "pets"
+ },
+ {
+  "nom": "Electro Owl",
+  "type": "familier",
+  "idJeu": 2,
+  "place": null,
+  "super": false,
+  "source": "pets"
+ },
+ {
+  "nom": "Mighty Yak",
+  "type": "familier",
+  "idJeu": 1,
+  "place": null,
+  "super": false,
+  "source": "pets"
+ },
+ {
+  "nom": "Unicorn",
+  "type": "familier",
+  "idJeu": 3,
+  "place": null,
+  "super": false,
+  "source": "pets"
+ },
+ {
+  "nom": "Frosty",
+  "type": "familier",
+  "idJeu": 9,
+  "place": null,
+  "super": false,
+  "source": "pets"
+ },
+ {
+  "nom": "Diggy",
+  "type": "familier",
+  "idJeu": 8,
+  "place": null,
+  "super": false,
+  "source": "pets"
+ },
+ {
+  "nom": "Poison Lizard",
+  "type": "familier",
+  "idJeu": 7,
+  "place": null,
+  "super": false,
+  "source": "pets"
+ },
+ {
+  "nom": "Phoenix",
+  "type": "familier",
+  "idJeu": 4,
+  "place": null,
+  "super": false,
+  "source": "pets"
+ },
+ {
+  "nom": "Spirit Fox",
+  "type": "familier",
+  "idJeu": 10,
+  "place": null,
+  "super": false,
+  "source": "pets"
+ },
+ {
+  "nom": "Angry Jelly",
+  "type": "familier",
+  "idJeu": 11,
+  "place": null,
+  "super": false,
+  "source": "pets"
+ },
+ {
+  "nom": "Sneezy",
+  "type": "familier",
+  "idJeu": 16,
+  "place": null,
+  "super": false,
+  "source": "pets"
+ },
+ {
+  "nom": "Greedy Raven",
+  "type": "familier",
+  "idJeu": 17,
+  "place": null,
+  "super": false,
+  "source": "pets"
+ },
+ {
+  "nom": "Barbarian Puppet",
+  "type": "equipement",
+  "idJeu": 0,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Barbarian King"
+ },
+ {
+  "nom": "Vampstache",
+  "type": "equipement",
+  "idJeu": 11,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Barbarian King"
+ },
+ {
+  "nom": "Earthquake Boots",
+  "type": "equipement",
+  "idJeu": 8,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Barbarian King"
+ },
+ {
+  "nom": "Rage Vial",
+  "type": "equipement",
+  "idJeu": 1,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Barbarian King"
+ },
+ {
+  "nom": "Spiky Ball",
+  "type": "equipement",
+  "idJeu": 14,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Barbarian King"
+ },
+ {
+  "nom": "Giant Gauntlet",
+  "type": "equipement",
+  "idJeu": 10,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Barbarian King"
+ },
+ {
+  "nom": "Snake Bracelet",
+  "type": "equipement",
+  "idJeu": 32,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Barbarian King"
+ },
+ {
+  "nom": "Stick Horse",
+  "type": "equipement",
+  "idJeu": 51,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Barbarian King"
+ },
+ {
+  "nom": "Archer Puppet",
+  "type": "equipement",
+  "idJeu": 2,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Archer Queen"
+ },
+ {
+  "nom": "Giant Arrow",
+  "type": "equipement",
+  "idJeu": 17,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Archer Queen"
+ },
+ {
+  "nom": "Invisibility Vial",
+  "type": "equipement",
+  "idJeu": 3,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Archer Queen"
+ },
+ {
+  "nom": "Healer Puppet",
+  "type": "equipement",
+  "idJeu": 20,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Archer Queen"
+ },
+ {
+  "nom": "Frozen Arrow",
+  "type": "equipement",
+  "idJeu": 15,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Archer Queen"
+ },
+ {
+  "nom": "Magic Mirror",
+  "type": "equipement",
+  "idJeu": 39,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Archer Queen"
+ },
+ {
+  "nom": "Action Figure",
+  "type": "equipement",
+  "idJeu": 48,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Archer Queen"
+ },
+ {
+  "nom": "Monolith Arrow",
+  "type": "equipement",
+  "idJeu": 16,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Archer Queen"
+ },
+ {
+  "nom": "Eternal Tome",
+  "type": "equipement",
+  "idJeu": 4,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Grand Warden"
+ },
+ {
+  "nom": "Rage Gem",
+  "type": "equipement",
+  "idJeu": 24,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Grand Warden"
+ },
+ {
+  "nom": "Healing Tome",
+  "type": "equipement",
+  "idJeu": 34,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Grand Warden"
+ },
+ {
+  "nom": "Life Gem",
+  "type": "equipement",
+  "idJeu": 5,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Grand Warden"
+ },
+ {
+  "nom": "Fireball",
+  "type": "equipement",
+  "idJeu": 22,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Grand Warden"
+ },
+ {
+  "nom": "Lavaloon Puppet",
+  "type": "equipement",
+  "idJeu": 41,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Grand Warden"
+ },
+ {
+  "nom": "Heroic Torch",
+  "type": "equipement",
+  "idJeu": 19,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Grand Warden"
+ },
+ {
+  "nom": "Royal Gem",
+  "type": "equipement",
+  "idJeu": 7,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Royal Champion"
+ },
+ {
+  "nom": "Haste Vial",
+  "type": "equipement",
+  "idJeu": 12,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Royal Champion"
+ },
+ {
+  "nom": "Seeking Shield",
+  "type": "equipement",
+  "idJeu": 6,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Royal Champion"
+ },
+ {
+  "nom": "Hog Rider Puppet",
+  "type": "equipement",
+  "idJeu": 9,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Royal Champion"
+ },
+ {
+  "nom": "Rocket Spear",
+  "type": "equipement",
+  "idJeu": 13,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Royal Champion"
+ },
+ {
+  "nom": "Electro Boots",
+  "type": "equipement",
+  "idJeu": 40,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Royal Champion"
+ },
+ {
+  "nom": "Frost Flake",
+  "type": "equipement",
+  "idJeu": 50,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Royal Champion"
+ },
+ {
+  "nom": "Henchmen Puppet",
+  "type": "equipement",
+  "idJeu": 42,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Minion Prince"
+ },
+ {
+  "nom": "Dark Orb",
+  "type": "equipement",
+  "idJeu": 43,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Minion Prince"
+ },
+ {
+  "nom": "Metal Pants",
+  "type": "equipement",
+  "idJeu": 44,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Minion Prince"
+ },
+ {
+  "nom": "Noble Iron",
+  "type": "equipement",
+  "idJeu": 47,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Minion Prince"
+ },
+ {
+  "nom": "Dark Crown",
+  "type": "equipement",
+  "idJeu": 35,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Minion Prince"
+ },
+ {
+  "nom": "Meteor Staff",
+  "type": "equipement",
+  "idJeu": 49,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Minion Prince"
+ },
+ {
+  "nom": "Portal Pendant",
+  "type": "equipement",
+  "idJeu": 61,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Minion Prince"
+ },
+ {
+  "nom": "Fire Heart",
+  "type": "equipement",
+  "idJeu": 52,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Dragon Duke"
+ },
+ {
+  "nom": "Flame Blower",
+  "type": "equipement",
+  "idJeu": 57,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Dragon Duke"
+ },
+ {
+  "nom": "Stun Blaster",
+  "type": "equipement",
+  "idJeu": 56,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Dragon Duke"
+ },
+ {
+  "nom": "Electro Fangs",
+  "type": "equipement",
+  "idJeu": 59,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Dragon Duke"
+ },
+ {
+  "nom": "Rocket Backpack",
+  "type": "equipement",
+  "idJeu": 53,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Dragon Duke"
+ },
+ {
+  "nom": "Revenge Deck",
+  "type": "equipement",
+  "idJeu": 60,
+  "place": null,
+  "super": false,
+  "source": "equipment",
+  "hero": "Dragon Duke"
+ }
+]
