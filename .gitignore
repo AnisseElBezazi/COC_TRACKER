@@ -12,3 +12,8 @@
 # Local environment files (not versioned)
 /.env
 /.env.dev
+
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###
