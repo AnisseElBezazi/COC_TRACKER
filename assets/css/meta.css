@@ -205,3 +205,14 @@ img.sp.thi[data-i],img.sp.hdv-big[data-i]{background-image:url('/img/sprite.webp
 /* les logos gardent leur proportion (le logo Légende n'est pas carré) */
 .chead .ic img,.brand img,.btn img,.hero-badge img,.dtop img.league{object-fit:contain}
 .accueil .chead .ic{width:auto;height:auto;background:none;border:0;box-shadow:none;padding:0}
+
+/* ---------- Top joueurs : des cartes lisibles (2 par ligne au plus), pas une mosaïque de vignettes ---------- */
+.dcards{grid-template-columns:repeat(auto-fill,minmax(min(100%,420px),1fr))!important;gap:12px!important;padding:10px!important}
+.dcard{padding:14px 18px!important;gap:14px!important;border-radius:14px!important}
+.dcard .cn{font-size:18px!important}
+.dcard .cs{font-size:13.5px!important}
+.dcard .cv{font-size:30px!important}
+.dcard .cf{display:block!important;margin-top:4px}
+.dcard .medal,.dcard .rkn{width:36px;height:36px;font-size:16px}
+.dcard img.thi{width:40px;height:40px}
+.dcard .cf .ico img,.dcard .cf .ico .fb{width:30px;height:30px}
