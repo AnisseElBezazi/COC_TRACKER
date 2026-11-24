@@ -212,14 +212,14 @@ class GroupeControllerTest extends WebTestCase
     /**
      * Un groupe de 10 joueurs aux trophées décroissants, dans la ligue d'identifiant donné.
      */
-    private function creerGroupeDeDix(int $idLigue): GroupeLigue
+    private function creerGroupeDeDix(int $idLigue, int $nombre = 10): GroupeLigue
     {
         $ligue = (new Ligue())->setIdSupercell($idLigue)->setNom('Ligue '.$idLigue);
         $groupe = (new GroupeLigue())->setTag('#GRP')->setSaisonId(1795410000)
             ->setDateDebut(new \DateTimeImmutable('@1795410000'))->setDateFin(new \DateTimeImmutable('@1796014800'))->setLigue($ligue);
         $this->em->persist($ligue);
         $this->em->persist($groupe);
-        for ($i = 1; $i <= 10; ++$i) {
+        for ($i = 1; $i <= $nombre; ++$i) {
             $joueur = (new Joueur())->setTag('#2P'.$i)->setNom('Joueur '.$i)->setNiveauHdv(17);
             $this->em->persist($joueur);
             $this->em->persist((new Participation())->setJoueur($joueur)->setGroupe($groupe)->setTrophees(1000 - 50 * $i)
@@ -289,6 +289,27 @@ class GroupeControllerTest extends WebTestCase
         $this->em->clear();
         $this->client->request('GET', '/groupe/'.$groupe->getId());
         self::assertSelectorNotExists('#analyse');
+    }
+
+    public function testLAnalyseAutomatiqueSeLimiteAuxVingtPremiersEtLeResteSeFaitAuClic(): void
+    {
+        $groupe = $this->creerGroupeDeDix(105000029, 30);
+
+        // Rien d'analysé : la barre se lance toute seule, sur les 20 premiers seulement.
+        $this->client->request('GET', '/groupe/'.$groupe->getId());
+        self::assertSelectorExists('#analyse[data-auto="1"]');
+        self::assertSelectorTextContains('#analyse-compte', '0 / 20');
+        self::assertSelectorNotExists('#analyse-go');
+
+        // Les 20 premiers sont faits : plus d'analyse automatique, un bouton propose les 10 autres.
+        foreach ($this->em->getRepository(Participation::class)->findBy(['groupe' => $groupe], ['trophees' => 'DESC'], 20) as $participation) {
+            $participation->setAttaquesImportees($participation->getAttaquesGagnees() + $participation->getAttaquesPerdues());
+        }
+        $this->em->flush();
+        $this->em->clear();
+        $this->client->request('GET', '/groupe/'.$groupe->getId());
+        self::assertSelectorExists('#analyse[data-auto="0"]');
+        self::assertSelectorTextContains('#analyse-go', 'Analyser les 10 autres');
     }
 
     public function testLaMetaListeLesArchetypesDEquipementParHeros(): void

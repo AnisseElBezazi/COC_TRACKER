@@ -8,6 +8,7 @@ use App\Entity\GroupeLigue;
 use App\Entity\Joueur;
 use App\Entity\Participation;
 use App\Entity\ResultatSemaine;
+use App\Service\ActualisationGroupes;
 use App\Service\ArmyDecoder;
 use App\Service\CocApi;
 use App\Service\ImportService;
@@ -139,6 +140,81 @@ class ImportServiceTest extends KernelTestCase
         $importeur->importerMembres($groupe, 0, 10);
 
         self::assertSame(0, $importeur->restantsAAnalyser($groupe), 'Bob, sans attaque, est considéré à jour sans appel.');
+    }
+
+    public function testLActualisationPlanifieeAnalyseLesGroupesEnCoursSansAucuneVisite(): void
+    {
+        $importeur = $this->importeur();
+        $importeur->importerJoueur('#82U22QLL');
+        $groupe = $this->em->getRepository(GroupeLigue::class)->findOneBy(['tag' => '#998U29Y']);
+        self::assertSame(1, $importeur->restantsAAnalyser($groupe));
+
+        // Pendant la semaine du groupe (1795410000 → 7 jours) : le groupe est actif et ses membres sont analysés.
+        $resultat = (new ActualisationGroupes($this->em, $importeur))->actualiser(new \DateTimeImmutable('@1795500000'));
+
+        self::assertSame(['groupes' => 1, 'restants' => 0], $resultat);
+        self::assertSame(0, $importeur->restantsAAnalyser($groupe));
+    }
+
+    public function testLActualisationIgnoreLesGroupesTermines(): void
+    {
+        $importeur = $this->importeur();
+        $importeur->importerJoueur('#82U22QLL');
+
+        // Deux semaines après la fin du groupe : rien à actualiser.
+        $resultat = (new ActualisationGroupes($this->em, $importeur))->actualiser(new \DateTimeImmutable('@1797500000'));
+
+        self::assertSame(['groupes' => 0, 'restants' => 0], $resultat);
+    }
+
+    public function testSeulsLesVingtPremiersSontAnalysesPuisLesAutresSurDemande(): void
+    {
+        $groupe = $this->creerGroupeDe(30);
+        $envoyees = [];
+        $client = new MockHttpClient(static function (string $methode, string $url) use (&$envoyees) {
+            $envoyees[] = $url;
+
+            return new MockResponse('{"items": []}', ['response_headers' => ['content-type: application/json']]);
+        });
+        $conteneur = self::getContainer();
+        $importeur = new ImportService(new CocApi('https://api.test/v1', $client), $conteneur->get(ArmyDecoder::class), $conteneur->get(TroupeCatalogue::class), $this->em, $conteneur->get(ValidatorInterface::class));
+
+        self::assertTrue($importeur->analyseIncomplete($groupe));
+        foreach ([0, 10] as $debut) {
+            $importeur->importerMembres($groupe, $debut, 10, limite: ImportService::PREMIERS);
+        }
+
+        self::assertFalse($importeur->analyseIncomplete($groupe), 'Les 20 premiers sont faits.');
+        self::assertSame(10, $importeur->autresAAnalyser($groupe));
+        self::assertSame(10, $importeur->restantsAAnalyser($groupe));
+        self::assertCount(21, $envoyees, '20 combats + la liste des ligues, et pas un appel de plus pour les 10 autres.');
+
+        // Au clic : le reste du groupe.
+        foreach ([0, 10, 20] as $debut) {
+            $importeur->importerMembres($groupe, $debut, 10);
+        }
+        self::assertSame(0, $importeur->restantsAAnalyser($groupe));
+        self::assertSame(0, $importeur->autresAAnalyser($groupe));
+        self::assertCount(31, $envoyees);
+    }
+
+    private function creerGroupeDe(int $nombre): GroupeLigue
+    {
+        $ligue = (new \App\Entity\Ligue())->setIdSupercell(105000029)->setNom('Dragon League 29');
+        $groupe = (new GroupeLigue())->setTag('#GRP')->setSaisonId(1795410000)
+            ->setDateDebut(new \DateTimeImmutable('@1795410000'))->setDateFin(new \DateTimeImmutable('@1796014800'))->setLigue($ligue);
+        $this->em->persist($ligue);
+        $this->em->persist($groupe);
+        for ($i = 1; $i <= $nombre; ++$i) {
+            $joueur = (new Joueur())->setTag('#2P'.$i)->setNom('Joueur '.$i);
+            $this->em->persist($joueur);
+            $this->em->persist((new Participation())->setJoueur($joueur)->setGroupe($groupe)->setTrophees(1000 - 10 * $i)
+                ->setAttaquesGagnees(5)->setAttaquesPerdues(0)->setDefensesGagnees(0)->setDefensesPerdues(0));
+        }
+        $this->em->flush();
+        $this->em->clear();
+
+        return $this->em->find(GroupeLigue::class, $groupe->getId());
     }
 
     public function testUnProfilIntrouvableEstNoteEtNeBloquePasLAnalyse(): void
