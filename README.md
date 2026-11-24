@@ -20,8 +20,8 @@ Dépôt : <https://github.com/AnisseElBezazi/COC_TRACKER>
 # 1. Installer les dépendances
 composer install
 
-# 2. Configurer la base : créer .env.local (ignoré par git) avec une base SQLite locale
-echo 'DATABASE_URL="sqlite:///%kernel.project_dir%/var/data_dev.db"' > .env.local
+# 2. Configurer : copier le fichier d'exemple (valeurs prêtes à l'emploi : clé de dev + base SQLite locale)
+cp .env.exemple .env
 
 # 3. Créer les tables
 php bin/console doctrine:migrations:migrate --no-interaction
@@ -34,13 +34,14 @@ Ouvre <http://127.0.0.1:8000>, entre un tag (le champ est prérempli avec `#82U2
 La première fois, l'application appelle l'API (6 appels), puis analyse les combats des **20 premiers** du groupe ;
 un bouton propose d'analyser les autres joueurs. La documentation de l'API REST est sur `/api/docs`.
 
-> `.env` contient une base PostgreSQL par défaut ; les migrations du projet sont écrites pour **SQLite**,
-> d'où l'étape 2.
+> **`.env.exemple`** contient tout ce qu'il faut pour tester : une clé `APP_SECRET` de développement et une base
+> **SQLite** locale (les migrations du projet sont écrites pour SQLite). Le vrai `.env` n'est pas versionné ;
+> aucune clé d'API n'est nécessaire. Pour une configuration personnelle, utilise `.env.local` (lui aussi ignoré par git).
 
 ## Si le serveur de l'API est en panne : mode hors ligne
 
-Des réponses réelles sont enregistrées dans [`fixtures/api/`](fixtures/api/LISEZ-MOI.md). Pour les utiliser, ajoute
-dans `.env.local` :
+Des réponses réelles sont enregistrées dans [`fixtures/api/`](fixtures/api/LISEZ-MOI.md). Pour les utiliser,
+décommente (ou ajoute) dans `.env` la ligne :
 
 ```
 COC_API_URL=fixtures/api

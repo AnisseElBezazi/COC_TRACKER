@@ -6,7 +6,7 @@ semaine précédente, la liste des ligues, et les combats des 20 premiers du gro
 
 ## Utilisation
 
-Dans `.env.local` :
+Dans `.env` (la ligne est déjà dans `.env.exemple`, en commentaire) :
 
 ```
 COC_API_URL=fixtures/api
