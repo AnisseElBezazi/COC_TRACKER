@@ -1,0 +1,102 @@
+/* ==========================================================================
+   Mouvement : transitions entre pages et entre états, fond animé, marges.
+   Chargée en dernier. Tout ce qui bouge n'utilise que transform et opacity (calculés par la carte graphique),
+   et tout est coupé si le système demande moins d'animations.
+   ========================================================================== */
+
+/* ---------- marges : on utilise la largeur de l'écran, avec une gouttière fine ---------- */
+:root{--gut:clamp(10px,1.6vw,28px)}
+.wrap{max-width:1760px;padding-left:var(--gut);padding-right:var(--gut)}
+body.has-detail .wrap{max-width:1760px}
+.dnav{margin-left:calc(var(--gut) * -1);margin-right:calc(var(--gut) * -1);padding-left:var(--gut);padding-right:var(--gut)}
+.split.has-detail .detailcol{width:min(620px,44%)}
+
+/* ---------- polices : texte masqué le temps du chargement plutôt qu'un saut de mise en page ---------- */
+@font-face{font-family:'Clash';src:url('/fonts/clash-heavy.woff2') format('woff2');font-weight:900;font-display:block}
+@font-face{font-family:'Clash';src:url('/fonts/clash-bold.woff2') format('woff2');font-weight:700;font-display:block}
+@font-face{font-family:'BackBeat';src:url('/fonts/ccbackbeat-regular.woff2') format('woff2');font-weight:400;font-display:block}
+@font-face{font-family:'BackBeat';src:url('/fonts/ccbackbeat-light.woff2') format('woff2');font-weight:300;font-display:block}
+
+/* ---------- plus de hauteurs estimées : elles faisaient bouger l'ascenseur ---------- */
+.projrow{content-visibility:visible}
+
+/* ---------- transitions entre pages (navigateurs compatibles) : le fond et le logo restent en place ---------- */
+@view-transition{navigation:auto}
+/* IMPORTANT : aucune couche de fond (village, voile, lueur, brume, braises) ne reçoit de view-transition-name.
+   Les éléments nommés sont dessinés AU-DESSUS de la capture de la page : le voile sombre plein écran recouvrait donc tout
+   le contenu pendant la transition (la page « disparaissait » puis revenait). Sans nom, le fond fait partie de la capture
+   et se fond avec elle ; son mouvement reste continu d'une page à l'autre grâce à --fond-t. */
+/* Un vrai fondu enchaîné : l'ancienne page reste pleinement visible et la nouvelle apparaît PAR-DESSUS elle.
+   (Les deux s'effaçaient et réapparaissaient chacune de leur côté : on voyait un trou, d'où l'effet « ça disparaît puis revient ».)
+   mix-blend-mode normal : sinon les deux images s'additionnent et la page flashe plus claire. */
+::view-transition-old(root),::view-transition-new(root){mix-blend-mode:normal}
+::view-transition-old(root){animation:none}
+::view-transition-new(root){animation:vt-entree .36s cubic-bezier(.2,.8,.2,1) both}
+@keyframes vt-entree{from{opacity:0;transform:translateY(10px)}}
+/* changements d'état sur la même page : fondu seul, sans déplacer toute la page */
+html.vt-local::view-transition-new(root){animation:vt-fondu-entree .26s ease-out both}
+@keyframes vt-fondu-entree{from{opacity:0}}
+/* navigateurs sans transitions de page : la page apparaît en fondu */
+/* (sans transitions de page, aucune animation d'entrée : faire partir le contenu de la transparence le ferait « disparaître » à chaque clic) */
+body.sortie .wrap,body.sortie .progress{opacity:0;transition:opacity .3s ease}
+
+/* ---------- fond vivant ---------- */
+/* le village dérive lentement (effet « caméra »), en continu d'une page à l'autre grâce à --fond-t */
+.bg{animation:derive 70s ease-in-out infinite alternate;animation-delay:calc(var(--fond-t,0) * -1s);will-change:transform}
+@keyframes derive{from{transform:scale(1.1) translate3d(0,0,0)}to{transform:scale(1.21) translate3d(-2.4%,-1.8%,0)}}
+/* lueur de torches qui respire */
+.glow,.brume,#braises{position:fixed;inset:0;z-index:1;pointer-events:none}
+.glow{background:
+  radial-gradient(560px 400px at 10% 92%,rgba(255,140,40,.34),transparent 70%),
+  radial-gradient(520px 380px at 92% 86%,rgba(255,185,70,.26),transparent 70%),
+  radial-gradient(760px 280px at 50% -4%,rgba(255,215,140,.14),transparent 70%);
+  animation:lueur 6.5s ease-in-out infinite alternate;will-change:opacity}
+@keyframes lueur{from{opacity:.5}to{opacity:1}}
+/* brume qui traverse l'écran */
+.brume{overflow:hidden}
+.brume::before,.brume::after{content:"";position:absolute;left:-40%;width:180%;border-radius:50%;
+  background:radial-gradient(ellipse at center,rgba(255,236,205,.11),transparent 66%);will-change:transform}
+.brume::before{top:46%;height:34%;animation:brume-a 46s ease-in-out infinite alternate}
+.brume::after{top:70%;height:40%;opacity:.8;animation:brume-b 62s ease-in-out infinite alternate}
+@keyframes brume-a{from{transform:translate3d(-9%,0,0)}to{transform:translate3d(9%,-6%,0)}}
+@keyframes brume-b{from{transform:translate3d(8%,0,0)}to{transform:translate3d(-8%,5%,0)}}
+#braises{width:100%;height:100%}
+
+/* ---------- plus d'animation d'entrée propre à chaque élément ---------- */
+/* La transition de page fait déjà apparaître le contenu ; rejouer une entrée depuis la transparence sur chaque ligne,
+   carte ou onglet vidait la page puis la remplissait de nouveau. (Une animation « forwards » écrasait aussi
+   transform pour toujours : le survol et l'inclinaison ne marchaient pas.) */
+.projrow,.lcard,.hrow,.dsection.active,.split.has-detail .listcol{opacity:1;transform:none;animation:none}
+
+/* ---------- une réaction à chaque interaction ---------- */
+.projrow,.dcard,.dtab,.seg button,.btn,.lcta,.lcard,.pn-close,.backbtn,.badge-date,.search,.field{
+  transition:transform .16s cubic-bezier(.2,.8,.3,1.2),box-shadow .16s,filter .16s,background .2s,border-color .2s,color .2s}
+.projrow:active,.dcard:active{transform:scale(.985)}
+.dnav .dtab:active,.seg button:active{transform:scale(.95)}
+.btn:active{transform:translateY(4px) scale(.99)}
+.pn-close{transition:transform .28s cubic-bezier(.2,.8,.3,1.4),filter .16s}
+.pn-close:hover{transform:rotate(90deg) scale(1.08)}
+.pn-close:active{transform:rotate(90deg) scale(.88)}
+.dkpi{transition:transform .2s cubic-bezier(.2,.8,.3,1.2),box-shadow .2s}
+.dkpi:hover{transform:translateY(-3px)}
+.medal,.rkn{transition:transform .2s cubic-bezier(.2,.8,.3,1.4)}
+.projrow:hover .medal,.projrow:hover .rkn{transform:scale(1.12) rotate(-6deg)}
+.pr-tot{transition:transform .2s cubic-bezier(.2,.8,.3,1.4)}
+.projrow:hover .pr-tot{transform:scale(1.07)}
+.detailcol .hcard,.detailcol .unit{animation:pop-entree .4s cubic-bezier(.2,.8,.3,1.3) backwards}
+.detailcol .hcard:nth-child(2){animation-delay:.05s}.detailcol .hcard:nth-child(3){animation-delay:.1s}
+.detailcol .hcard:nth-child(4){animation-delay:.15s}.detailcol .hcard:nth-child(5){animation-delay:.2s}
+@keyframes pop-entree{from{opacity:0;transform:scale(.8) translateY(8px)}}
+
+/* ---------- barre d'analyse : une pastille flottante en bas, qui ne décale plus la page ---------- */
+.progress{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:90;width:min(520px,calc(100vw - 24px));margin:0;animation:toast-entree .45s cubic-bezier(.2,.8,.3,1.2) backwards}
+@keyframes toast-entree{from{opacity:0;transform:translate(-50%,24px) scale(.96)}}
+
+@media (prefers-reduced-motion:reduce){
+  .bg,.glow,.brume::before,.brume::after,.progress,.detailcol .hcard,.detailcol .unit{animation:none!important}
+  #braises{display:none}
+  ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}
+}
+
+/* changement de joueur dans la fiche : le contenu glisse sans jamais disparaître complètement */
+@keyframes pnIn{from{opacity:.4;transform:translateX(14px)}to{opacity:1;transform:none}}
