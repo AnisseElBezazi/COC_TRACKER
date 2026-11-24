@@ -12,46 +12,69 @@
     {% set relegues = regle ? regle.relegues : 0 %}
     {% set taille = kpis.joueurs %}
 
-    {% if analyseIncomplete %}
-        <div class="progress" id="analyse" data-url="{{ path('app_groupe_analyser', {id: groupe.id}) }}" data-token="{{ csrf_token('analyser') }}" role="status">
-            <b>Analyse des combats du groupe…</b> <span id="analyse-compte">0 / {{ kpis.joueurs }}</span>
-            <div class="bar" style="--c1:var(--green);--c2:var(--green2)"><i id="analyse-barre" style="width:2%"></i></div>
-            <p class="note">On récupère les attaques et les armées de chaque joueur. La page se met à jour toute seule.</p>
+    {% if analyseIncomplete or autresAAnalyser > 0 %}
+        <div class="progress" id="analyse" data-url="{{ path('app_groupe_analyser', {id: groupe.id}) }}" data-token="{{ csrf_token('analyser') }}" data-auto="{{ analyseIncomplete ? '1' : '0' }}" role="status">
+            {% if analyseIncomplete %}
+                <b>Analyse des meilleurs joueurs…</b> <span id="analyse-compte">0 / 20</span>
+                <div class="bar" style="--c1:var(--green);--c2:var(--green2)"><i id="analyse-barre" style="width:2%"></i></div>
+                <p class="note">On récupère les attaques et les armées des 20 premiers du classement. La page se met à jour toute seule.</p>
+            {% else %}
+                <b>Les 20 premiers sont analysés.</b> <span id="analyse-compte" hidden></span>
+                <div class="bar" id="analyse-piste" hidden style="--c1:var(--green);--c2:var(--green2)"><i id="analyse-barre" style="width:2%"></i></div>
+                <p class="note">Les armées des {{ autresAAnalyser }} autres joueurs qui ont attaqué ne sont pas encore chargées.</p>
+                <button class="btn" type="button" id="analyse-go" style="width:auto;padding:0 18px">Analyser les {{ autresAAnalyser }} autres</button>
+            {% endif %}
         </div>
         <script>
-        (async () => {
+        (() => {
             const bloc = document.getElementById('analyse');
-            let debut = 0;
-            let passage = 1;
-            let restants = 0;
-            try {
-                while (true) {
-                    const reponse = await fetch(bloc.dataset.url, {method: 'POST', body: new URLSearchParams({_token: bloc.dataset.token, debut})});
-                    if (!reponse.ok) throw new Error();
-                    const r = await reponse.json();
-                    document.getElementById('analyse-compte').textContent = r.fait + ' / ' + r.total;
-                    document.getElementById('analyse-barre').style.width = Math.max(2, 100 * r.fait / r.total) + '%';
-                    if (!r.termine) { debut = r.fait; continue; }
-                    // Fin du passage : si l'API a refusé certains joueurs (trop de requêtes), on repasse dessus (2 fois au plus).
-                    restants = r.restants;
-                    if (restants > 0 && passage < 3) {
-                        passage++;
-                        debut = 0;
-                        bloc.querySelector('b').textContent = 'L\'API limite le débit : nouvel essai pour ' + restants + ' joueur' + (restants > 1 ? 's' : '') + '…';
-                        await new Promise((ok) => setTimeout(ok, 2500));
-                        continue;
+            const lancer = async (tout) => {
+                let debut = 0;
+                let passage = 1;
+                let restants = 0;
+                const titre = bloc.querySelector('b');
+                try {
+                    while (true) {
+                        const corps = new URLSearchParams({_token: bloc.dataset.token, debut});
+                        if (tout) corps.set('tout', '1');
+                        const reponse = await fetch(bloc.dataset.url, {method: 'POST', body: corps});
+                        if (!reponse.ok) throw new Error();
+                        const r = await reponse.json();
+                        document.getElementById('analyse-compte').textContent = r.fait + ' / ' + r.total;
+                        document.getElementById('analyse-barre').style.width = Math.max(2, 100 * r.fait / r.total) + '%';
+                        if (!r.termine) { debut = r.fait; continue; }
+                        // Fin du passage : si l'API a refusé certains joueurs (trop de requêtes), on repasse dessus (2 fois au plus).
+                        restants = r.restants;
+                        if (restants > 0 && passage < 3) {
+                            passage++;
+                            debut = 0;
+                            titre.textContent = 'L\'API limite le débit : nouvel essai pour ' + restants + ' joueur' + (restants > 1 ? 's' : '') + '…';
+                            await new Promise((ok) => setTimeout(ok, 2500));
+                            continue;
+                        }
+                        break;
                     }
-                    break;
+                    if (restants > 0) {
+                        titre.textContent = restants + ' joueur' + (restants > 1 ? 's n\'ont' : ' n\'a') + ' pas pu être analysé' + (restants > 1 ? 's' : '') + ' (API saturée). Recharge la page dans un instant pour réessayer.';
+                        return;
+                    }
+                    // Fin de l'analyse : la page s'efface en fondu avant de se recharger, au lieu de sauter d'un coup.
+                    document.body.classList.add('sortie');
+                    setTimeout(() => location.reload(), 320);
+                } catch (e) {
+                    titre.textContent = 'Analyse interrompue — recharge la page pour reprendre.';
                 }
-                if (restants > 0) {
-                    bloc.querySelector('b').textContent = restants + ' joueur' + (restants > 1 ? 's n\'ont' : ' n\'a') + ' pas pu être analysé' + (restants > 1 ? 's' : '') + ' (API saturée). Recharge la page dans un instant pour réessayer.';
-                    return;
-                }
-                // Fin de l'analyse : la page s'efface en fondu avant de se recharger, au lieu de sauter d'un coup.
-                document.body.classList.add('sortie');
-                setTimeout(() => location.reload(), 320);
-            } catch (e) {
-                bloc.querySelector('b').textContent = 'Analyse interrompue — recharge la page pour reprendre.';
+            };
+            if (bloc.dataset.auto === '1') {
+                lancer(false);
+            } else {
+                document.getElementById('analyse-go').addEventListener('click', (e) => {
+                    e.currentTarget.hidden = true;
+                    bloc.querySelector('b').textContent = 'Analyse des autres joueurs…';
+                    document.getElementById('analyse-compte').hidden = false;
+                    document.getElementById('analyse-piste').hidden = false;
+                    lancer(true);
+                });
             }
         })();
         </script>
@@ -78,9 +101,9 @@
     {# ===== Navigation : 4 onglets, puis les sous-vues de l'onglet ===== #}
     <div class="dnav" id="dnav">
         <div class="dtabs" id="dtabs" role="tablist" aria-label="Sections du groupe">
-            <button class="dtab active" type="button" role="tab" id="tab-projection" data-g="projection" aria-selected="true"><img src="{{ asset('img/trophies.png') }}" alt="">Projection</button>
+            <button class="dtab active" type="button" role="tab" id="tab-meta" data-g="meta" aria-selected="true"><img src="{{ asset('img/stars.png') }}" alt="">Méta<span class="cnt">{{ metaTroupes|length }}</span></button>
+            <button class="dtab" type="button" role="tab" id="tab-projection" data-g="projection" aria-selected="false" tabindex="-1"><img src="{{ asset('img/trophies.png') }}" alt="">Projection</button>
             <button class="dtab" type="button" role="tab" id="tab-top" data-g="top" aria-selected="false" tabindex="-1"><img src="{{ asset('img/attack.png') }}" alt="">Top joueurs</button>
-            <button class="dtab" type="button" role="tab" id="tab-meta" data-g="meta" aria-selected="false" tabindex="-1"><img src="{{ asset('img/stars.png') }}" alt="">Méta<span class="cnt">{{ metaTroupes|length }}</span></button>
         </div>
         <div class="seg" id="dsub" role="tablist" aria-label="Vue" hidden></div>
     </div>
@@ -89,7 +112,7 @@
     <div class="split" id="split">
         <div class="listcol">
     {# ===== Projection ===== #}
-    <div class="dsection active" id="sec-projection" role="tabpanel" aria-labelledby="tab-projection">
+    <div class="dsection" id="sec-projection" role="tabpanel" aria-labelledby="tab-projection">
         <div class="dpanel">
             <div class="dph" title="Trophées déjà gagnés + combats restants × rythme du joueur (lissé avec ses semaines passées). Clique sur un joueur pour son détail, ↑ ↓ pour passer de l'un à l'autre."><img src="{{ asset('img/trophies.png') }}" alt=""><span class="ttl" id="proj-titre">Classement prévu</span></div>
             <div class="dpb">
@@ -162,7 +185,7 @@
     {% endfor %}
 
     {# ===== Méta : tier list, carte popularité × réussite, tableau ===== #}
-    <div class="dsection" id="sec-meta" role="tabpanel" aria-labelledby="tab-meta">
+    <div class="dsection active" id="sec-meta" role="tabpanel" aria-labelledby="tab-meta">
         <div class="dpanel">
             <div class="dph"><img src="{{ asset('img/stars.png') }}" alt=""><span class="ttl">Méta</span></div>
             <div class="dpb">
@@ -312,13 +335,13 @@
 
         // Onglets principaux -> vues (sections) qu'ils contiennent.
         const GROUPES = {
+            meta: [{id: 'meta', label: 'Archétypes', icone: 'stars'}, {id: 'heros', label: 'Héros les plus joués', icone: 'legende'}, {id: 'contre', label: 'Défense par archétype', icone: 'defense'}],
             projection: [{id: 'projection', label: 'Projection'}],
             top: [{id: 'offense', label: 'Offensifs', icone: 'attack'}, {id: 'defense', label: 'Défensifs', icone: 'defense'}],
-            meta: [{id: 'meta', label: 'Archétypes', icone: 'stars'}, {id: 'heros', label: 'Héros les plus joués', icone: 'legende'}, {id: 'contre', label: 'Défense par archétype', icone: 'defense'}],
         };
         const groupeDe = (vue) => Object.keys(GROUPES).find((g) => GROUPES[g].some((v) => v.id === vue));
         const icone = (nom) => `{{ asset('img/') }}${nom}.png`;
-        let vueCourante = 'projection';
+        let vueCourante = 'meta';
 
         // Hauteur de la barre collée en haut : le panneau de droite se cale juste dessous.
         function majHauteurNav() { document.documentElement.style.setProperty('--navh', nav.offsetHeight + 'px'); }
@@ -378,7 +401,7 @@
         });
 
         const depart = location.hash.slice(1);
-        ouvrir(groupeDe(depart) ? depart : 'projection', {defiler: false, animer: false});
+        ouvrir(groupeDe(depart) ? depart : 'meta', {defiler: false, animer: false});
         addEventListener('hashchange', () => { const h = location.hash.slice(1); if (groupeDe(h) && h !== vueCourante) ouvrir(h, {defiler: false}); });
 
         // Contrôles segmentés (un seul actif à la fois).
