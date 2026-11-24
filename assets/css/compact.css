@@ -1,0 +1,412 @@
+/* ==========================================================================
+   Densité : tout est plus petit pour voir beaucoup plus de choses d'un coup,
+   avec des marges latérales confortables. Chargée en dernier.
+   ========================================================================== */
+
+/* ---------- marges latérales ---------- */
+:root{--gut:clamp(18px,3.6vw,76px)}
+.wrap{max-width:1560px;padding-top:12px;padding-bottom:44px}
+body.has-detail .wrap{max-width:1560px}
+.split.has-detail .detailcol{width:min(500px,38%)}
+
+/* ---------- en-tête ---------- */
+.brand{margin:0 0 8px;gap:8px}
+.brand .logo,.logo{width:32px;height:32px}
+.brand b{font-size:19px}
+.backbtn{margin-bottom:8px;padding:4px 12px;font-size:12px;border-radius:9px;box-shadow:0 3px 0 #2b170c,inset 0 1px 0 rgba(255,255,255,.25)}
+.dtop{padding:8px 16px;margin-bottom:10px;gap:12px;border-width:3px;box-shadow:0 4px 0 #2b170c,0 8px 16px rgba(0,0,0,.45),inset 0 2px 0 rgba(255,255,255,.22),inset 0 0 0 2px #a97a5c}
+.dtop img.league{width:46px;height:46px}
+.dtop .t1{font-size:clamp(17px,1.8vw,24px)}
+.badge-date{font-size:13px;padding:5px 12px;border-radius:9px;box-shadow:0 2px 0 #8a5a0a,inset 0 1px 0 rgba(255,255,255,.55)}
+.hdv-big{width:56px;height:56px}
+
+/* ---------- chiffres clés ---------- */
+.dkpis{gap:8px;margin-bottom:10px;grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}
+.dkpi{padding:6px 8px;border-radius:10px;box-shadow:0 3px 0 #1f1008,inset 0 2px 4px rgba(0,0,0,.35)}
+.dkpi .v{font-size:21px;gap:5px}
+.dkpi .v .mi{width:18px;height:18px}
+.dkpi .l{font-size:10px;margin-top:0;letter-spacing:.4px}
+
+/* ---------- navigation ---------- */
+.dnav{padding-top:5px;padding-bottom:7px;margin-bottom:8px}
+.dnav .dtabs{padding:3px;gap:4px;border-width:2px;border-radius:12px;box-shadow:inset 0 2px 5px rgba(0,0,0,.5),0 3px 0 #1d0f07}
+.dnav .dtab{padding:5px 12px;font-size:12px;gap:6px;border-radius:9px}
+.dnav .dtab img{width:16px;height:16px}
+.dnav .seg{margin-top:5px}
+.seg{padding:3px;gap:3px;border-width:2px;border-radius:10px}
+.seg button{padding:4px 10px;font-size:11px;gap:5px;border-radius:7px}
+.seg button img{width:14px;height:14px}
+.cnt{padding:0 6px;font-size:10px;min-width:20px}
+
+/* ---------- panneaux ---------- */
+.dpanel{margin-bottom:10px;border-width:3px;border-radius:12px;box-shadow:0 4px 0 #2b170c,0 8px 16px rgba(0,0,0,.45),inset 0 2px 0 rgba(255,255,255,.22),inset 0 0 0 2px #a97a5c}
+.dph{padding:5px 12px;gap:8px}
+.dph .ttl{font-size:15px}
+.dph>img{width:20px;height:20px}
+.dpb{padding:5px 6px 7px}
+.filters{margin:2px 4px 6px;gap:6px 10px}
+.search{padding:5px 11px;font-size:12.5px;border-radius:8px}
+.filters .searchbox .search{padding:5px 11px}
+.compte{font-size:11px}
+.scroll{max-height:none;overflow:visible}
+
+/* ---------- lignes de classement : ~40 % moins hautes ---------- */
+.legend{padding:3px 10px;margin:0 0 2px;font-size:10.5px;gap:3px 14px;border-radius:9px}
+.legend .k{width:16px;height:8px}
+.legend .gp{font-size:10.5px;padding:0 6px}
+.proj-list{gap:3px;padding:3px}
+.projrow{grid-template-columns:36px minmax(0,1fr) minmax(110px,1.7fr) auto;gap:9px;padding:4px 10px 4px 12px;border-radius:9px;box-shadow:0 2px 0 #1f1008,inset 0 1px 0 rgba(255,255,255,.1)}
+.projrow::before{width:4px}
+.projrow:hover{box-shadow:0 3px 0 #1f1008,0 0 0 1px rgba(239,180,42,.5)}
+.projrow.t1{box-shadow:0 3px 0 #1f1008,inset 0 1px 0 rgba(255,255,255,.2)}
+.split.has-detail .projrow{grid-template-columns:34px minmax(0,1fr) auto}
+.medal{width:28px;height:28px;font-size:12px;border-width:1.5px}
+.rkn{width:26px;height:26px;font-size:11.5px;border-radius:8px}
+.pr-name .nm{font-size:12.5px;gap:6px}
+.thi{width:19px;height:19px}
+.pr-sub{font-size:10px;margin-top:1px}
+.pr-fav{margin-top:1px}
+.ico.xs img,.ico.xs .fb{width:17px;height:17px;border-width:1px}
+.ico.xs img+img,.ico.xs img+.fb,.ico.xs .fb+img{margin-left:-6px}
+.fav .ft{font-size:10px}
+.fav{gap:5px}
+.pbar{height:11px;border-width:1.5px;border-radius:6px}
+.pbar-lab{margin-top:2px;font-size:9.5px;gap:8px}
+.pbar-lab .mi,.mi{width:12px;height:12px}
+.pr-end{min-width:68px;gap:1px}
+.pr-tot{font-size:13px;padding:1px 7px;border-radius:8px;border-width:1.5px;gap:3px}
+.pr-tot .mi.tro,.mi.tro{width:13px;height:13px}
+.pr-delta{font-size:10.5px}
+.zondiv{margin:1px 6px;font-size:10.5px;gap:8px}
+.zondiv::before,.zondiv::after{height:1px}
+.vide{padding:12px}
+
+/* ---------- cartes Top, héros, équipements ---------- */
+.dcards{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:5px;padding:3px}
+.dcard{padding:5px 8px;gap:7px;border-radius:9px}
+.dcard .cn{font-size:12px}
+.dcard .cs{font-size:10px}
+.dcard .cv{font-size:15px}
+.dcard .medal,.dcard .rkn{flex:none}
+.ico img,.ico .fb{width:30px;height:30px}
+.ico.sm img,.ico.sm .fb{width:22px;height:22px}
+.ico img+img,.ico img+.fb,.ico .fb+img{margin-left:-8px}
+
+/* ---------- fiche du joueur (panneau de droite) ---------- */
+.pn{padding:8px 10px;gap:6px}
+.pn-head{gap:8px}
+.pn-id h3{font-size:15px}
+.pn-id p{font-size:10.5px;margin-top:1px}
+.pn .hdv-big{width:40px;height:40px}
+.pn-close{width:28px;height:28px;font-size:18px;border-radius:8px}
+.pn .calcrow{gap:4px}
+.pn .citem{padding:3px 8px;border-radius:8px}
+.pn .citem b{font-size:15px;gap:4px}
+.pn .citem span{font-size:10px;margin-top:0}
+.pn .citem .mi.tro{width:15px;height:15px}
+.pn .calcrow .op{font-size:14px}
+.pn .progrow{margin-top:4px;gap:8px}
+.pn .progrow .bar{height:8px}
+.pn .progrow b{font-size:12px}
+.pn .perf{gap:6px}
+.pn .pcard{padding:4px 8px}
+.pn .pcard .plabel .mi{width:18px;height:18px}
+.pn .pcard .prow b{font-size:14px}
+.pn .stars{font-size:15px;letter-spacing:1px}
+.pn .army{gap:5px}
+.pn .heroes{gap:4px}
+.pn .hcard{padding:4px 3px;gap:3px;border-radius:9px}
+.pn .hcard .hp{max-width:42px;border-radius:8px}
+.pn .hcard .pet{width:28px;height:28px;border-radius:8px}
+.pn .hcard .eq{width:22px;height:22px;border-radius:7px}
+.pn .aside{gap:5px}
+.pn .agrp{padding:4px 6px 5px;border-radius:9px}
+.pn .ahead{font-size:9.5px;margin-bottom:3px}
+.pn .unit{width:30px;height:30px;border-radius:8px}
+.pn .unit .qty{font-size:9px;padding:0 3px}
+.pn .army-note{font-size:10px;margin:2px 2px 0}
+.pn .more{font-size:11px}
+
+/* ---------- armée sur la page joueur ---------- */
+.army{gap:10px 12px}
+.hcard{width:80px;padding:6px 4px;gap:4px}
+.hcard .hp{width:62px;height:62px}
+.hcard .pet{width:40px;height:40px}
+.hcard .eq{width:30px;height:30px}
+.unit{width:44px;height:44px}
+.agrp{padding:6px 8px 8px}
+.armywrap{padding:8px 10px}
+
+/* ---------- page des ligues ---------- */
+.hero{padding:14px 18px;gap:4px 18px;border-radius:16px}
+.hero-badge{width:96px;height:96px}
+.hero-badge img{width:86px;height:86px}
+.hero h1{font-size:clamp(20px,2.2vw,28px);margin:2px 0 6px}
+.hero-kpis{margin-top:6px;gap:8px}
+.hero-kpis div{padding:6px 10px;border-radius:10px;flex:1 1 90px}
+.hero-kpis b{font-size:17px}
+.hero-kpis span{font-size:10px}
+.pill{font-size:10.5px;padding:3px 8px}
+.ribbon{height:44px;margin:14px auto 8px;max-width:300px}
+.ribbon span{font-size:11px}
+.lgrid{grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:12px}
+.lcard{padding:12px 12px 12px;border-radius:16px;border-width:3px}
+.lflag{top:10px;left:10px;font-size:9px;padding:3px 8px}
+.lart{width:112px;height:112px;margin:8px 0 2px}
+.lart img{width:92px;height:92px}
+.lname{font-size:16px}
+.ldate{font-size:11px;margin-top:2px}
+.lrank{margin:10px 0 10px;gap:12px}
+.ring{width:70px;height:70px}
+.ringin{width:56px;height:56px}
+.ringin b{font-size:17px}
+.ringin span{font-size:9px}
+.lstats{gap:3px}
+.lstats b{font-size:14px}
+.lstats .mi{width:16px;height:16px}
+.lcta{height:34px;font-size:12px;border-radius:10px}
+.histo-rows{padding:8px 12px 6px;gap:4px}
+.hrow{grid-template-columns:40px 36px 1fr 64px;padding:3px 8px;gap:8px;border-radius:10px}
+.hicon img{width:30px;height:30px}
+.hbar{height:22px}
+.hbar span{font-size:11px}
+.hrk{font-size:13px}
+
+/* ---------- accueil ---------- */
+.card{border-radius:14px;margin-bottom:12px}
+.chead{padding:8px 12px;gap:10px}
+.chead .ic{width:44px;height:44px;border-radius:11px}
+.chead .ic img{width:32px;height:32px}
+.chead h1,.chead h2{font-size:18px}
+.cbody{padding:12px 14px}
+.field input{font-size:16px;padding:9px 0}
+.field{border-radius:10px}
+.btn{height:42px;font-size:14px;margin-top:12px;border-radius:11px}
+.btn img{width:24px;height:24px}
+.lab{font-size:11px;margin-bottom:5px}
+
+/* ---------- barre d'analyse ---------- */
+.progress{padding:8px 12px;border-radius:12px}
+.progress b{font-size:12px}
+.progress .bar{height:8px;margin-top:6px}
+
+/* ==========================================================================
+   Deuxième passe de densité : une ligne par joueur, un en-tête réduit à une bande.
+   ========================================================================== */
+
+/* ---------- en-tête : logo masqué sur les pages de données, retour = simple flèche dans la bande ---------- */
+body:has(.dtop) .brand{display:none}
+body:has(.dtop) .wrap{padding-top:8px}
+.backico{flex:none;width:30px;height:30px;padding:0;margin:0;display:grid;place-items:center;font-size:17px;line-height:1;border-radius:8px}
+.dtop{padding:5px 12px;margin-bottom:6px;gap:10px;border-radius:10px}
+.dtop img.league{width:34px;height:34px}
+.dtop .t1{font-size:clamp(15px,1.5vw,20px)}
+.badge-date{font-size:11.5px;padding:3px 10px}
+
+/* ---------- chiffres clés : une seule rangée basse, icône + chiffre + mot côte à côte ---------- */
+.dkpis{gap:6px;margin-bottom:6px;grid-template-columns:repeat(5,minmax(0,1fr))}
+.dkpi{display:flex;align-items:center;justify-content:center;gap:7px;padding:3px 8px;border-radius:8px;box-shadow:0 2px 0 #1f1008,inset 0 2px 4px rgba(0,0,0,.35)}
+.dkpi .v{font-size:17px;gap:4px}
+.dkpi .v .mi{width:15px;height:15px}
+.dkpi .l{font-size:9.5px;margin:0;letter-spacing:.3px}
+.dkpi:hover{transform:none}
+
+/* ---------- navigation ---------- */
+.dnav{padding-top:3px;padding-bottom:5px;margin-bottom:4px}
+.dnav .dtab{padding:4px 12px}
+.dnav .seg{margin-top:4px}
+
+/* ---------- liste : légende et sous-titres retirés (les couleurs et les séparateurs « TOP 20 » / « −20 » suffisent) ---------- */
+.legend{display:none}
+.dph{padding:4px 12px}
+.dph .ttl{font-size:14px}
+.dpb{padding:4px 6px 6px}
+.filters{margin:0 2px 4px}
+.filters .searchbox .search,.search{padding:4px 10px}
+
+/* ---------- une ligne par joueur : nom, armée favorite, barre, trophées ---------- */
+.projrow{grid-template-columns:30px minmax(0,1.4fr) minmax(100px,1.6fr) auto;gap:8px;padding:2px 8px 2px 10px;border-radius:7px;align-items:center}
+.split.has-detail .projrow{grid-template-columns:28px minmax(0,1fr) auto}
+.medal{width:24px;height:24px;font-size:11px}
+.rkn{width:22px;height:22px;font-size:10.5px;border-radius:7px}
+.pr-name{display:flex;align-items:center;gap:8px;min-width:0}
+.pr-name .nm{flex:0 1 auto;min-width:0;font-size:12px;gap:5px}
+.pr-name .nm .txt{max-width:190px}
+.pr-sub{flex:none;margin:0;font-size:10px}
+.pr-fav{flex:1 1 0;min-width:0;margin:0;overflow:hidden}
+.pr-fav .fav{max-width:100%;overflow:hidden}
+.thi{width:17px;height:17px}
+.ico.xs img,.ico.xs .fb{width:16px;height:16px}
+.pbar{height:8px}
+.pbar-lab{display:none}
+.pr-end{flex-direction:row;align-items:center;gap:6px;min-width:0}
+.pr-tot{font-size:12px;padding:0 6px}
+.pr-delta{min-width:30px;text-align:right;font-size:10px}
+.zondiv{margin:0 6px;font-size:10px}
+.proj-list{gap:2px;padding:2px}
+
+/* ---------- cartes Top et listes de méta plus serrées ---------- */
+.dcards{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:4px;padding:2px}
+.dcard{padding:3px 7px;gap:6px}
+.dcard .cf{display:none}
+.dcard .cs{font-size:9.5px}
+
+/* ==========================================================================
+   Troisième passe : de l'air. Les textes restent petits, mais les éléments ne se touchent plus.
+   ========================================================================== */
+
+/* ---------- en-tête et navigation ---------- */
+body:has(.dtop) .wrap{padding-top:14px}
+.dtop{padding:9px 16px;margin-bottom:12px;gap:14px}
+.dkpis{gap:12px;margin-bottom:12px}
+.dkpi{padding:7px 12px;gap:8px}
+.dnav{padding-top:6px;padding-bottom:9px;margin-bottom:6px}
+.dnav .dtabs{padding:4px;gap:6px}
+.dnav .dtab{padding:6px 16px}
+.dnav .seg{margin-top:7px}
+.seg{padding:4px;gap:4px}
+.seg button{padding:5px 13px}
+
+/* ---------- panneaux ---------- */
+.dpanel{margin-bottom:16px}
+.dph{padding:8px 16px;gap:10px}
+.dpb{padding:10px 12px 12px}
+.filters{margin:0 2px 12px;gap:10px 14px}
+.filters .searchbox .search,.search{padding:7px 12px}
+
+/* ---------- lignes : plus hautes, plus espacées ---------- */
+.proj-list{gap:6px;padding:4px}
+.projrow{grid-template-columns:34px minmax(0,1.4fr) minmax(100px,1.6fr) auto;gap:14px;padding:6px 14px 6px 16px;border-radius:9px}
+.split.has-detail .projrow{grid-template-columns:32px minmax(0,1fr) auto}
+.medal{width:26px;height:26px}
+.rkn{width:24px;height:24px}
+.pr-name{gap:12px}
+.pr-name .nm{gap:7px}
+.pbar{height:9px}
+.pr-end{gap:10px}
+.pr-tot{padding:1px 9px}
+.zondiv{margin:6px 8px}
+
+/* ---------- cartes ---------- */
+.dcards{grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;padding:4px}
+.dcard{padding:7px 11px;gap:10px}
+
+/* ---------- fiche du joueur ---------- */
+.pn{padding:12px 14px;gap:9px}
+.pn-head{gap:10px}
+.pn .calcrow{gap:6px}
+.pn .citem{padding:5px 10px}
+.pn .progrow{margin-top:6px}
+.pn .perf{gap:8px}
+.pn .pcard{padding:6px 10px}
+.pn .army{gap:7px}
+.pn .heroes{gap:6px}
+.pn .hcard{padding:5px 4px}
+.pn .aside{gap:7px}
+.pn .agrp{padding:5px 8px 7px}
+.units{gap:5px}
+.pn .army-note{display:none}
+
+/* ---------- autres pages ---------- */
+.hero{padding:16px 20px;gap:6px 20px}
+.lgrid{gap:16px}
+.lcard{padding:14px 14px 14px}
+.histo-rows{padding:10px 14px 8px;gap:6px}
+.hrow{padding:4px 10px}
+.chead{padding:10px 14px}
+.cbody{padding:14px 16px}
+
+/* ==========================================================================
+   Quatrième passe : tailles de texte et d'icônes remontées (lisible), espacements conservés.
+   ========================================================================== */
+
+/* ---------- en-tête ---------- */
+.dtop img.league{width:44px;height:44px}
+.dtop .t1{font-size:clamp(18px,1.8vw,24px)}
+.badge-date{font-size:13px;padding:4px 12px}
+.backico{width:34px;height:34px;font-size:19px}
+.dkpi .v{font-size:21px}
+.dkpi .v .mi{width:19px;height:19px}
+.dkpi .l{font-size:11px}
+.dnav .dtab{padding:7px 18px;font-size:14px;gap:8px}
+.dnav .dtab img{width:19px;height:19px}
+.seg button{padding:6px 14px;font-size:12.5px}
+.seg button img{width:16px;height:16px}
+.cnt{font-size:11px}
+
+/* ---------- panneaux et filtres ---------- */
+.dph{padding:9px 16px}
+.dph .ttl{font-size:17px}
+.dph>img{width:24px;height:24px}
+.search,.filters .searchbox .search{font-size:14px;padding:8px 13px}
+.compte{font-size:12.5px}
+
+/* ---------- lignes ---------- */
+.projrow{grid-template-columns:38px minmax(0,1.4fr) minmax(100px,1.6fr) auto;padding:8px 14px 8px 16px}
+.split.has-detail .projrow{grid-template-columns:36px minmax(0,1fr) auto}
+.medal{width:30px;height:30px;font-size:13px}
+.rkn{width:28px;height:28px;font-size:12.5px}
+.pr-name .nm{font-size:14px}
+.pr-name .nm .txt{max-width:240px}
+.thi{width:22px;height:22px}
+.pr-sub{font-size:11.5px}
+.fav .ft{font-size:11.5px}
+.ico.xs img,.ico.xs .fb{width:20px;height:20px}
+.ico.xs img+img,.ico.xs img+.fb,.ico.xs .fb+img{margin-left:-7px}
+.pbar{height:11px}
+.pr-tot{font-size:14.5px;padding:2px 10px}
+.pr-tot .mi.tro,.mi.tro{width:15px;height:15px}
+.pr-delta{font-size:12px;min-width:36px}
+.zondiv{font-size:11.5px}
+.zondiv .mi{width:16px;height:16px}
+
+/* ---------- cartes Top, héros, équipements ---------- */
+.dcards{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.dcard{padding:9px 12px}
+.dcard .cn{font-size:14px}
+.dcard .cs{font-size:11.5px}
+.dcard .cv{font-size:18px}
+.ico img,.ico .fb{width:36px;height:36px}
+.ico.sm img,.ico.sm .fb{width:26px;height:26px}
+
+/* ---------- fiche du joueur ---------- */
+.pn-id h3{font-size:18px}
+.pn-id p{font-size:12px}
+.pn .hdv-big{width:46px;height:46px}
+.pn-close{width:32px;height:32px;font-size:20px}
+.pn .citem b{font-size:18px}
+.pn .citem span{font-size:11.5px}
+.pn .citem .mi.tro{width:17px;height:17px}
+.pn .calcrow .op{font-size:16px}
+.pn .progrow .bar{height:10px}
+.pn .progrow b{font-size:13.5px}
+.pn .pcard .plabel .mi{width:20px;height:20px}
+.pn .pcard .prow b{font-size:16px}
+.pn .stars{font-size:17px}
+.pn .hcard .hp{max-width:50px}
+.pn .hcard .pet{width:32px;height:32px}
+.pn .hcard .eq{width:25px;height:25px}
+.pn .ahead{font-size:10.5px}
+.pn .unit{width:36px;height:36px}
+.pn .unit .qty{font-size:10px}
+.pn .more{font-size:12.5px}
+
+/* ---------- autres pages ---------- */
+.hero h1{font-size:clamp(22px,2.4vw,32px)}
+.hero-kpis b{font-size:20px}
+.lname{font-size:18px}
+.lart{width:128px;height:128px}
+.lart img{width:106px;height:106px}
+.ring{width:78px;height:78px}
+.ringin{width:62px;height:62px}
+.ringin b{font-size:19px}
+.lstats b{font-size:16px}
+.lcta{height:38px;font-size:13.5px}
+.hrow{grid-template-columns:44px 40px 1fr 72px}
+.hicon img{width:34px;height:34px}
+.hbar{height:24px}
+.hbar span{font-size:12.5px}
+.hrk{font-size:14.5px}
+.chead h1,.chead h2{font-size:20px}
+.btn{height:46px;font-size:15px}
+.field input{font-size:18px;padding:11px 0}

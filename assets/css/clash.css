@@ -1,0 +1,181 @@
+/* ==========================================================================
+   Thème « Clash of Clans » : bois brun, puits brun foncé, bandeaux or, boutons verts.
+   Couleurs relevées sur les captures d'écran du jeu :
+     bois des panneaux #81553e · cadre #7f5440 · onglet inactif / lignes #4d3429 · puits #5c3f32
+     bandeau or #e3a41d · bouton vert #98e047 · cartes de troupes bleues · cartes de héros violettes
+   Chargée APRÈS app.css : elle remplace les couleurs sans toucher à la mise en page.
+   ========================================================================== */
+:root{
+  --bg:#2a1a10;--bg2:#1d120a;--card:#5c3f32;--card2:#6a4a3a;--glass:#5c3f32;
+  --line:#3a2417;--line2:#2b170d;--ink:#fff;--muted:#ecdcc0;--muted2:#c9a987;
+  --gold:#efb42a;--gold2:#ffd566;--goldE:#9a6410;
+  --purple:#efb42a;--purple2:#ffd566;--blue:#5aa8ff;--blue2:#9bcbff;
+  --green:#6bbf2a;--green2:#98e047;--rose:#ff6a5c;--red:#e3382d;--orange:#f0922b;
+  --bois:#81553e;--bois-clair:#9a6849;--bois-sombre:#4d3429;--puits:#5c3f32;--cadre:#4a2c1b;
+  --trait:0 1px 0 #2b170c,0 -1px 0 #2b170c,1px 0 0 #2b170c,-1px 0 0 #2b170c,1px 1px 0 #2b170c,-1px -1px 0 #2b170c,1px -1px 0 #2b170c,-1px 1px 0 #2b170c,0 2px 3px rgba(0,0,0,.45);
+}
+
+/* ---------- décor : le village du jeu, simplement assombri (plus de voile violet / bleu) ---------- */
+body{background:var(--bg2);color:#fff}
+.bg{background:url('/img/hero.webp') center 16%/cover no-repeat}
+.veil{background:linear-gradient(180deg,rgba(28,16,8,.55) 0%,rgba(24,13,7,.78) 55%,rgba(18,10,5,.92) 100%)}
+a{color:var(--gold2)}a:hover{color:#fff}
+
+/* ---------- le texte du jeu : blanc avec un contour brun ---------- */
+.brand b,.dtop .t1,.dph .ttl,.dkpi .v,.hero h1,.pn-id h3,.chead h1,.chead h2,.lname,.medal,.rkn,.pr-tot,.ringin b,.citem b,.pcard .prow b{text-shadow:var(--trait)}
+.brand b{color:#fff}.brand b span{background:none;-webkit-text-fill-color:var(--gold2);color:var(--gold2)}
+.logo{filter:drop-shadow(0 2px 4px rgba(0,0,0,.6))}
+
+/* ---------- boutons ---------- */
+.btn,.lcta{color:#fff;text-shadow:var(--trait);border:2px solid #2f6a0d;
+  background:linear-gradient(180deg,#b8ef6a 0%,#7fcf2d 45%,#4f9f17 100%);
+  box-shadow:0 5px 0 #2a5a0b,inset 0 2px 0 rgba(255,255,255,.55)}
+.btn:active{box-shadow:0 1px 0 #2a5a0b}
+.lcta{box-shadow:0 4px 0 #2a5a0b,inset 0 2px 0 rgba(255,255,255,.55)}
+.backbtn{color:#fff;text-shadow:var(--trait);background:linear-gradient(180deg,#7a4d37,#5a3827);border:2px solid #3a2114;box-shadow:0 4px 0 #2b170c,inset 0 1px 0 rgba(255,255,255,.25)}
+.backbtn:hover{color:#fff;filter:brightness(1.1)}
+.pn-close{width:36px;height:36px;border-radius:9px;color:#fff;font-weight:900;text-shadow:var(--trait);border:2px solid #6b130d;
+  background:linear-gradient(180deg,#ff7468,#e3382d 55%,#b02218);box-shadow:0 3px 0 #6b130d,inset 0 2px 0 rgba(255,255,255,.4)}
+.pn-close:hover{color:#fff;border-color:#6b130d;filter:brightness(1.1)}
+
+/* ---------- panneaux de bois ---------- */
+.dtop,.dpanel,.card,.hero,.progress{
+  background:linear-gradient(180deg,#8e5f45 0%,#81553e 50%,#74492f 100%);
+  border:4px solid var(--cadre);
+  box-shadow:0 6px 0 #2b170c,0 12px 24px rgba(0,0,0,.5),inset 0 2px 0 rgba(255,255,255,.22),inset 0 0 0 2px #a97a5c}
+.dtop::after{display:none}
+.dtop .t1{color:#fff}
+.dph,.chead{background:linear-gradient(180deg,#6d4631,#5b3a28);border-bottom:3px solid #3a2114;box-shadow:inset 0 1px 0 rgba(255,255,255,.18)}
+.dph .ttl,.chead h1,.chead h2{color:#fff}
+.dph .sub,.chead p{color:var(--muted);text-shadow:0 1px 0 #2b170c}
+.dpb{background:transparent}
+.card::before,.hero::before{display:none}
+.chead .ic,.dph>img{filter:drop-shadow(0 2px 2px rgba(0,0,0,.5))}
+.chead .ic{background:linear-gradient(180deg,#5c3f32,#4d3429);border:2px solid #2b170c;box-shadow:inset 0 2px 4px rgba(0,0,0,.4)}
+.badge-date{color:#fff;text-shadow:var(--trait);background:linear-gradient(180deg,#ffd45a,#e3a41d);border:2px solid #8a5a0a;box-shadow:0 3px 0 #8a5a0a,inset 0 1px 0 rgba(255,255,255,.55)}
+
+/* ---------- puits brun foncé : cartes chiffrées, lignes, champs ---------- */
+.dkpi,.citem,.pcard,.agrp,.legend,.dcard,.field,.search,.calc,.progress{
+  background:linear-gradient(180deg,#5a3d30,#4d3429);border:2px solid #2f1d12;box-shadow:inset 0 2px 5px rgba(0,0,0,.35),0 1px 0 rgba(255,255,255,.12)}
+.dkpi::before{display:none}
+.dkpi .v{color:var(--kc)}
+.dkpi .l,.dkpi .s{color:var(--muted)}
+.field:focus-within,.search:focus{border-color:var(--gold);box-shadow:inset 0 2px 5px rgba(0,0,0,.35),0 0 0 2px rgba(239,180,42,.5)}
+.field input,.search{color:#fff}
+.field input::placeholder,.search::placeholder{color:#b99876}
+.field .pfx{color:var(--gold2);text-shadow:var(--trait)}
+
+/* ---------- onglets et boutons de choix ---------- */
+.dnav{background:linear-gradient(180deg,rgba(29,18,10,.96),rgba(29,18,10,.85) 80%,rgba(29,18,10,0))}
+.dnav .dtabs,.seg{background:#3b261b;border:3px solid #2b170c;box-shadow:inset 0 2px 5px rgba(0,0,0,.5),0 4px 0 #1d0f07}
+.dnav .dtab,.seg button{color:#e8d3b4;text-shadow:0 1px 0 #2b170c}
+.dnav .dtab:hover,.seg button:hover{color:#fff;background:rgba(255,255,255,.08)}
+.dnav .dtab.active,.seg button.active{color:#fff;text-shadow:var(--trait);background:linear-gradient(180deg,#ffd45a 0%,#efb42a 50%,#d48d12 100%);
+  box-shadow:0 3px 0 #8a5a0a,inset 0 2px 0 rgba(255,255,255,.55);border:0}
+.cnt{color:#fff;background:#2b170c;border:1px solid #1d0f07}
+.dtab.active .cnt{background:#7a4d0a;color:#fff;border-color:transparent}
+
+/* ---------- lignes de classement : brun foncé, texte blanc, barres vertes ---------- */
+.projrow{background:linear-gradient(180deg,#5a3d30,#4a3126);border:2px solid #2f1d12;box-shadow:0 3px 0 #1f1008,inset 0 1px 0 rgba(255,255,255,.1)}
+.projrow:hover{border-color:var(--gold);box-shadow:0 5px 0 #1f1008,0 0 0 1px rgba(239,180,42,.5)}
+.projrow.t1{background:linear-gradient(180deg,#7a5033,#5e3d28);border-color:#a8700f;box-shadow:0 4px 0 #1f1008,inset 0 1px 0 rgba(255,255,255,.2)}
+.projrow.selected{border-color:var(--gold2);background:linear-gradient(180deg,#7c5336,#654029);box-shadow:0 0 0 2px rgba(255,213,102,.7),0 0 22px rgba(239,180,42,.3)}
+.projrow.promo{--acc:linear-gradient(#ffd566,#e3a41d)}
+.projrow.demo{--acc:linear-gradient(#ff7468,#c52a1f)}
+.pr-name .nm .txt{color:#fff;text-shadow:var(--trait)}
+.pr-name a.txt:hover{color:var(--gold2)}
+.pr-sub,.pr-fav .fav .ft{color:var(--muted)}
+.pbar{background:#2a1a10;border:2px solid #1d0f07;box-shadow:inset 0 2px 4px rgba(0,0,0,.6)}
+.pbar .att{background:linear-gradient(180deg,#ffe488,#efb42a)}
+.pbar .def{background:linear-gradient(180deg,#b9f070,#6bbf2a)}
+.pbar-lab .a{color:var(--gold2)}.pbar-lab .d{color:#b9f070}
+.legend .k.def{background:linear-gradient(180deg,#b9f070,#6bbf2a)}
+.legend .k.att,.legend .k.promo{background:linear-gradient(180deg,#ffe488,#efb42a)}
+.legend .k.reldz{background:linear-gradient(180deg,#ff8a7e,#c52a1f)}
+.legend{color:var(--muted)}
+.legend .gp,.pr-tot{color:#fff;text-shadow:var(--trait);background:linear-gradient(180deg,#ffd45a,#e3a41d);border:2px solid #8a5a0a;box-shadow:0 2px 0 #8a5a0a,inset 0 1px 0 rgba(255,255,255,.55)}
+.pr-delta{text-shadow:0 1px 0 #1d0f07}
+.pos{color:#9bef4a}.neg{color:#ff7468}
+.medal{color:#3a2308;text-shadow:none}
+.rkn{color:#fff;background:#3b261b;border:2px solid #2b170c}
+.zondiv{color:var(--gold2);text-shadow:var(--trait)}
+.zondiv.rel{color:#ff8a7e}
+.hdv,.chip{background:#3b261b;border:1px solid #2b170c;color:#fff}
+
+/* ---------- barres de progression (comme dans le jeu : vertes) ---------- */
+.bar{background:#2a1a10;border:2px solid #1d0f07;box-shadow:inset 0 2px 4px rgba(0,0,0,.6)}
+.bar i{background:linear-gradient(180deg,#b9f070,#6bbf2a)}
+.progrow .bar i{background:linear-gradient(180deg,#b9f070,#6bbf2a)}
+
+/* ---------- panneau de droite ---------- */
+.detailcol{background:linear-gradient(180deg,#8e5f45,#74492f);border:4px solid var(--cadre);box-shadow:0 6px 0 #2b170c,0 14px 30px rgba(0,0,0,.55),inset 0 0 0 2px #a97a5c}
+.pn-id p{color:var(--muted)}.pn-id p b{color:#fff}
+.blocktitle{color:var(--gold2);text-shadow:0 1px 0 #2b170c}
+.citem span,.pcard .pdesc{color:var(--muted)}
+.citem.total{background:linear-gradient(180deg,#8f6a1a,#6e4f12);border-color:#e3a41d}
+.citem.total b{color:var(--gold2)}
+.stars{background:linear-gradient(90deg,#ffd45a var(--v),rgba(0,0,0,.35) var(--v));-webkit-background-clip:text;background-clip:text}
+.stars.def{background:linear-gradient(90deg,#9bef4a var(--v),rgba(0,0,0,.35) var(--v));-webkit-background-clip:text;background-clip:text}
+.pcard .plabel{color:var(--gold2)}.pcard.def .plabel{color:#b9f070}
+.pcard small,.citem small{color:var(--muted2)}
+.army-note{color:var(--muted2)}
+
+/* ---------- armée : même rendu que l'écran d'armée du jeu ---------- */
+.hcard{background:linear-gradient(180deg,#a45bb0,#7a3f8a 55%,#5f2f70);border:2px solid #4a2058;box-shadow:inset 0 2px 0 rgba(255,255,255,.3),0 3px 0 #3a1848}
+.hcard .eq{border-color:#e3b24a}
+.unit{border:2px solid #cfe1f0;background:linear-gradient(180deg,#5b9be8,#2f67bd);box-shadow:0 2px 0 rgba(0,0,0,.45)}
+.unit.spell{border-color:#e4d0f5;background:linear-gradient(180deg,#a97be8,#6a3fc0)}
+.unit.siege{border-color:#f3dcc0;background:linear-gradient(180deg,#e8a05a,#b8641a)}
+.unit .qty{background:rgba(24,12,6,.85)}
+.ahead{color:var(--gold2)}.ahead b{color:var(--muted2)}
+
+/* ---------- cartes Top, méta, listes ---------- */
+.dcard{color:#fff}
+a.dcard:hover,.dcard.selected{border-color:var(--gold2)}
+.dcard .cn{color:#fff;text-shadow:0 1px 0 #2b170c}.dcard .cs{color:var(--muted)}.dcard .cv{color:var(--gold2);text-shadow:var(--trait)}
+.ico img,.ico .fb{border:2px solid #2b170c;background:radial-gradient(circle at 40% 30%,#8a6045,#4d3429)}
+.fav .ft{color:var(--muted)}
+.fav.none{color:var(--muted2)}
+.vide,.note,.dnote,.hint,.intro{color:var(--muted)}
+.calc summary{color:var(--gold2)}.calc{color:var(--muted)}
+
+/* ---------- pages d'accueil, ligues et joueur ---------- */
+.err{background:linear-gradient(180deg,#c9382c,#9a2218);border:2px solid #5f130c;color:#fff;text-shadow:0 1px 0 #3a0c07}
+.warn{color:#fff;background:#e3382d;box-shadow:0 2px 0 #6b130d}
+.hero{background:linear-gradient(135deg,#9a6a4d,#7a4d37 70%)}
+.hero::after{background:radial-gradient(circle,rgba(255,213,102,.28),transparent 68%)}
+.eyebrow{background:none;-webkit-text-fill-color:var(--gold2);color:var(--gold2);text-shadow:0 1px 0 #2b170c}
+.pill{background:#3b261b;border:1px solid #2b170c;color:#fff}.pill.gold{color:var(--gold2);background:#5e4210;border-color:#e3a41d}
+.hero-kpis div{background:linear-gradient(180deg,#5a3d30,#4d3429);border:2px solid #2f1d12}
+.hero-kpis span{color:var(--muted)}
+.lcard{background:linear-gradient(180deg,#8e5f45,#74492f);border:4px solid var(--cadre);box-shadow:0 6px 0 #2b170c,0 12px 24px rgba(0,0,0,.5),inset 0 0 0 2px #a97a5c;color:#fff}
+.lcard::before{display:none}
+.lcard:hover,.lcard:focus-visible{border-color:var(--gold2);box-shadow:0 8px 0 #2b170c,0 16px 30px rgba(0,0,0,.55),inset 0 0 0 2px #a97a5c,0 0 28px rgba(239,180,42,.35)}
+.lname{background:none;-webkit-text-fill-color:#fff;color:#fff}
+.lflag{background:#3b261b;border:2px solid #2b170c;color:var(--muted)}
+.lcard.live .lflag{color:#fff;text-shadow:var(--trait);background:linear-gradient(180deg,#b8ef6a,#4f9f17);border-color:#2f6a0d}
+.ldate,.lstats{color:var(--muted)}
+.ring{background:conic-gradient(#98e047 calc(var(--p) * 1%),rgba(0,0,0,.35) 0)}
+.ringin{background:#4d3429}.ringin b{background:none;-webkit-text-fill-color:#fff;color:#fff}
+.hrow{background:linear-gradient(180deg,#5a3d30,#4a3126);border:2px solid #2f1d12}
+.hbar{background:#2a1a10;border:2px solid #1d0f07}.hbar i{background:linear-gradient(180deg,#ffe488,#efb42a)}
+.hbar span{color:#fff}.hrk{color:#fff;text-shadow:var(--trait)}
+.hrow.p1{background:linear-gradient(90deg,#7a5522,#4a3126)}
+.gold{color:var(--gold2)}
+
+/* ---------- moins de texte : les explications passent en infobulle ---------- */
+.dtop .t2,.dkpi .s,.chead p,.hint,.intro,.dph .sub{display:none}
+.dkpi{padding:12px 10px}
+.dkpi .v{display:flex;align-items:center;justify-content:center;gap:6px;font-size:30px}
+.dkpi .v .mi{width:26px;height:26px;margin:0}
+.dkpi .l{margin-top:2px;font-family:'Clash';font-weight:700;font-size:11.5px;letter-spacing:.5px}
+.army-note{margin:2px 4px 0;font-family:'Clash';font-weight:700;font-size:11px;color:var(--muted2);text-align:right}
+.lstats li{display:flex;align-items:center;gap:8px}
+.lstats .mi{width:20px;height:20px;margin:0}
+.lstats b{font-size:17px;margin:0}
+.pcard .plabel .mi{width:22px;height:22px;margin:0}
+.progrow .mi{width:20px;height:20px;margin:0}
+.ldate{font-family:'Clash';font-weight:700}
+
+/* village du jeu plus sombre, sans dominante colorée */
+.veil{background:linear-gradient(180deg,rgba(26,14,7,.72) 0%,rgba(22,12,6,.84) 50%,rgba(16,9,4,.94) 100%)}

@@ -1,0 +1,207 @@
+/* ==========================================================================
+   Méta : tier list, carte popularité × réussite, détail épinglé.
+   Règles du skill dataviz appliquées :
+     - un ordre (S > A > B > C) = une seule teinte qui s'assombrit (rampe validée --ordinal sur la surface brun foncé)
+     - marques fines, repères en hairline pleine (jamais en pointillé), 2 px de surface autour des marqueurs
+     - le texte reste en encre neutre : la couleur ne sert que de repère à côté du texte
+     - la bulle est un survol, jamais le seul accès à une valeur (le tableau est le jumeau complet)
+   ========================================================================== */
+:root{
+  --m-surface:#3b261b;          /* surface des graphiques : le puits brun foncé */
+  --m-ink:#fff;--m-ink2:#ecdcc0;--m-muted:#c9a987;
+  --m-grid:#52382a;--m-axis:#6e4c39;
+  --t-s:#ffd566;--t-a:#efb42a;--t-b:#c9891a;--t-c:#9a6612;   /* rampe ordinale validée */
+  --m-on-gold:#3a2308;          /* texte posé SUR un aplat doré */
+}
+.tier-s{--tc:var(--t-s)}.tier-a{--tc:var(--t-a)}.tier-b{--tc:var(--t-b)}.tier-c{--tc:var(--t-c)}
+.mdata[hidden],.mview[hidden],.mtile[hidden],.mpoint[hidden],.tier[hidden],.mchips[hidden],.mdetail[hidden],.mtip[hidden]{display:none!important}
+
+/* ---------- barre de filtres ---------- */
+.mfilters{align-items:center;gap:10px 16px}
+.mchips{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.mchips button{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:9px;cursor:pointer;font-family:'Clash';font-weight:700;font-size:11.5px;
+  color:var(--m-ink2);background:var(--m-surface);border:2px solid #2f1d12;transition:transform .14s,background .14s,color .14s,border-color .14s}
+.mchips button:hover{color:#fff;border-color:#6e4c39}
+.mchips button.active{color:var(--m-on-gold);background:linear-gradient(180deg,#ffd45a,#e3a41d);border-color:#8a5a0a;text-shadow:none}
+
+/* ---------- tier list ---------- */
+.tier{display:grid;grid-template-columns:58px minmax(0,1fr);gap:12px;margin:0 0 8px;padding:8px;border-radius:12px;background:var(--m-surface);border:2px solid #2f1d12;
+  box-shadow:inset 0 2px 5px rgba(0,0,0,.35)}
+.tier-badge{display:grid;place-items:center;border-radius:10px;background:linear-gradient(180deg,color-mix(in srgb,var(--tc) 72%,#fff),var(--tc) 55%,color-mix(in srgb,var(--tc) 80%,#000));
+  border:2px solid color-mix(in srgb,var(--tc) 55%,#000);box-shadow:0 3px 0 rgba(0,0,0,.35),inset 0 2px 0 rgba(255,255,255,.4)}
+.tier-badge b{font-family:'Clash';font-weight:900;font-size:30px;line-height:1;color:var(--m-on-gold)}
+.tier-s .tier-badge b{font-size:34px}
+.tier-items{display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start}
+.mtile{position:relative;width:88px;padding:9px 6px 6px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:var(--m-ink);
+  border-radius:11px;background:linear-gradient(180deg,#5a3d30,#4a3126);border:2px solid #2f1d12;box-shadow:0 2px 0 #1f1008,inset 0 1px 0 rgba(255,255,255,.1);
+  transition:transform .16s cubic-bezier(.2,.8,.3,1.2),border-color .16s,box-shadow .16s}
+.mtile::before{content:"";position:absolute;left:10px;right:10px;top:0;height:3px;border-radius:0 0 3px 3px;background:var(--tc)}
+.mtile:hover{transform:translateY(-3px);border-color:var(--tc)}
+.mtile:focus-visible,.mpoint:focus-visible{outline:2px solid var(--m-ink);outline-offset:2px}
+.mtile.on{border-color:var(--tc);box-shadow:0 0 0 2px var(--m-surface),0 0 0 4px var(--tc)}
+.mt-icons{display:flex;justify-content:center;min-height:26px}
+.mtile .ico{flex-wrap:wrap;justify-content:center}
+.mt-val{font-family:'Clash';font-weight:900;font-size:20px;line-height:1;letter-spacing:0;text-shadow:var(--trait)}
+.mt-val small{font-size:11px;margin-left:1px;color:var(--m-ink2)}
+.mt-n{font-family:'Clash';font-weight:700;font-size:10.5px;color:var(--m-muted)}
+
+/* ---------- carte popularité × réussite ---------- */
+.mmap{position:relative;display:grid;grid-template-columns:42px minmax(0,1fr);grid-template-areas:"y plot" ". x" ". xt";
+  padding:14px 18px 6px 0;border-radius:12px;background:var(--m-surface);border:2px solid #2f1d12;box-shadow:inset 0 2px 5px rgba(0,0,0,.35)}
+.m-yaxis{grid-area:y;position:relative}
+.m-yaxis span{position:absolute;right:8px;transform:translateY(50%);font-family:'Clash';font-weight:700;font-size:10.5px;color:var(--m-muted)}
+.m-plot{grid-area:plot;position:relative;height:clamp(330px,54vh,540px);margin-right:4px}
+.m-xaxis{grid-area:x;position:relative;height:22px}
+.m-xaxis span{position:absolute;top:6px;transform:translateX(-50%);font-family:'Clash';font-weight:700;font-size:10.5px;color:var(--m-muted);white-space:nowrap}
+.m-xtitle{grid-area:xt;text-align:center;font-family:'Clash';font-weight:700;font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--m-muted);padding:0 0 4px}
+.m-ytitle{position:absolute;top:0;left:10px;font-family:'Clash';font-weight:900;font-size:11px;color:var(--m-ink2)}
+.m-gl{position:absolute;background:var(--m-grid);pointer-events:none}
+.m-gh{left:0;right:0;height:1px}.m-gv{top:0;bottom:0;width:1px}
+.m-med{background:var(--m-axis)}
+.m-q{position:absolute;font-family:'Clash';font-weight:700;font-size:10.5px;letter-spacing:.7px;text-transform:uppercase;color:var(--m-muted);opacity:.8;pointer-events:none}
+.q-tr{top:8px;right:10px}.q-tl{top:8px;left:10px}.q-br{bottom:8px;right:10px}.q-bl{bottom:8px;left:10px}
+.mpoint{position:absolute;transform:translate(-50%,50%);width:42px;height:42px;padding:0;border-radius:50%;display:grid;place-items:center;cursor:pointer;
+  background:#4d3429;border:3px solid var(--tc);box-shadow:0 0 0 2px var(--m-surface);transition:transform .16s cubic-bezier(.2,.8,.3,1.2),opacity .16s,box-shadow .16s}
+.mpoint .mt-icons{min-height:0}
+.mpoint .ico>*:nth-child(n+3){display:none}            /* sur la carte : les deux premières icônes suffisent à reconnaître l'archétype */
+.mpoint .ico.xs img,.mpoint .ico.xs .fb{width:19px;height:19px}
+.mpoint:hover{z-index:6;transform:translate(-50%,50%) scale(1.18)}
+.mpoint.on{z-index:7;transform:translate(-50%,50%) scale(1.22);box-shadow:0 0 0 2px var(--m-surface),0 0 0 5px var(--m-ink)}
+.mpoint.dim{opacity:.45}
+.mpoint.dim:hover{opacity:1}
+
+/* ---------- bulle d'info ---------- */
+.mtip{position:fixed;z-index:95;pointer-events:none;min-width:190px;max-width:320px;padding:9px 12px;border-radius:10px;background:#2a1a10;border:2px solid #1d0f07;
+  box-shadow:0 10px 24px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.08);animation:mtipIn .12s ease-out both}
+@keyframes mtipIn{from{opacity:0;transform:translateY(4px)}}
+.mtip-head{display:flex;align-items:center;gap:8px;font-family:'Clash';font-weight:700;font-size:12px;color:var(--m-ink2)}
+.mtip-key{flex:none;width:14px;height:3px;border-radius:2px;background:var(--tc)}      /* clé en trait court, pas en case */
+.mtip-val{margin-top:3px;color:var(--m-muted);font-size:12px}
+.mtip-val b{font-family:'Clash';font-weight:900;font-size:20px;color:var(--m-ink)}     /* la valeur domine, le libellé suit */
+.mtip-l{margin-top:2px;font-size:11px;color:var(--m-muted)}
+
+/* ---------- détail de l'archétype épinglé ---------- */
+.mdetail{--tc:var(--t-a);margin-top:12px;display:grid;grid-template-columns:auto minmax(0,1.2fr) minmax(190px,1fr) auto;gap:8px 20px;align-items:center;padding:12px 16px 12px 14px;
+  border-radius:12px;background:var(--m-surface);border:2px solid #2f1d12;border-left:6px solid var(--tc);box-shadow:inset 0 2px 5px rgba(0,0,0,.35)}
+.mdetail[data-tier="s"]{--tc:var(--t-s)}.mdetail[data-tier="a"]{--tc:var(--t-a)}.mdetail[data-tier="b"]{--tc:var(--t-b)}.mdetail[data-tier="c"]{--tc:var(--t-c)}
+.md-icons .ico img,.md-icons .ico .fb{width:44px;height:44px}
+.md-icons .ico.sm img+img,.md-icons .ico img+img{margin-left:-12px}
+.md-nom{margin:0;font-family:'Clash';font-weight:900;font-size:18px;line-height:1.15;color:var(--m-ink);text-shadow:var(--trait);overflow-wrap:anywhere}
+.md-sous{margin:4px 0 0;font-size:12px;color:var(--m-ink2)}
+.md-tier{display:inline-block;padding:1px 9px;border-radius:6px;font-family:'Clash';font-weight:900;font-size:11px;background:var(--tc);color:var(--m-on-gold)}
+.md-fig{display:grid;grid-template-columns:auto 1fr;align-items:baseline;column-gap:8px}
+.md-taux{font-family:'Clash';font-weight:900;font-size:34px;line-height:1;color:var(--m-ink);text-shadow:var(--trait)}
+.md-u{color:var(--m-muted);font-size:12px}
+.md-meter{grid-column:1/-1;position:relative;height:8px;margin-top:6px;border-radius:4px;background:color-mix(in srgb,var(--tc) 22%,#2a1a10)}
+.md-meter i{position:absolute;inset:0 auto 0 0;border-radius:4px;background:var(--tc)}
+.md-meter u{position:absolute;top:-3px;bottom:-3px;width:2px;margin-left:-1px;background:var(--m-ink);opacity:.9}   /* repère : la médiane du groupe */
+.md-vs{grid-column:1/-1;margin-top:3px;font-size:11px;color:var(--m-muted)}
+.md-stats{display:grid;grid-template-columns:repeat(2,auto);gap:6px 20px;margin:0}
+.md-stats div{min-width:0}
+.md-stats dt{font-size:10.5px;color:var(--m-muted)}
+.md-stats dd{margin:0;font-family:'Clash';font-weight:900;font-size:16px;color:var(--m-ink)}
+
+@media (max-width:900px){
+  .mdetail{grid-template-columns:auto 1fr}
+  .md-fig,.md-stats{grid-column:1/-1}
+  .md-stats{grid-template-columns:repeat(4,auto)}
+  .tier{grid-template-columns:46px minmax(0,1fr)}
+  .tier-badge b{font-size:24px}
+  .mtile{width:80px}
+  .m-plot{height:clamp(300px,52vh,420px)}
+}
+@media (prefers-reduced-motion:reduce){.mtile,.mpoint,.mtip{transition:none!important;animation:none!important}}
+
+/* ---------- correctifs et mode dense ---------- */
+.m-med{position:absolute;pointer-events:none;background:#8a6650}                 /* lignes de repère : la médiane du groupe, en hairline pleine */
+.m-med.m-gh{left:0;right:0;height:1px}.m-med.m-gv{top:0;bottom:0;width:1px}
+.mmap{padding-top:26px}
+.m-ytitle{top:6px;left:12px}
+/* Au-delà de ~40 points : marqueurs plus petits ; pour les équipements, seules les icônes d'équipement (le héros est le filtre). */
+.mmap.dense .mpoint{width:30px;height:30px;border-width:2px}
+.mmap.dense .mpoint .ico.xs img,.mmap.dense .mpoint .ico.xs .fb{width:15px;height:15px}
+.mdata[data-ds="equipements"] .mmap.dense .mpoint .ico>*:first-child{display:none}
+.mdata[data-ds="equipements"] .mmap.dense .mpoint .ico>*:nth-child(n+4){display:none}
+.mmap.dense .mpoint:hover{transform:translate(-50%,50%) scale(1.35)}
+
+/* icônes des marqueurs : jamais écrasées par le flex (elles rétrécissaient en ovales) */
+.mpoint .ico img,.mpoint .ico .fb{flex:none}
+.mmap.dense .mpoint{width:32px;height:32px}
+.mmap.dense .mpoint .ico.xs img,.mmap.dense .mpoint .ico.xs .fb{width:19px;height:19px}
+.mdata[data-ds="equipements"] .mmap.dense .mpoint .ico>*:nth-child(n+3){display:none}   /* un seul équipement par point : le héros est le filtre */
+/* le chevauchement des icônes (marge négative) ne s'applique pas à une icône seule : il écrasait sa largeur (max-width:100%) */
+.mpoint .ico img,.mpoint .ico .fb{max-width:none;margin-left:0!important}
+.mpoint .ico>*:nth-child(2){margin-left:-6px!important}
+.mdata[data-ds="equipements"] .mmap.dense .mpoint .ico>*:nth-child(2){margin-left:0!important}
+
+/* ---------- compositions d'un archétype (chargées au clic) ---------- */
+.mcompos{margin-top:12px;transition:opacity .18s ease}
+.mcompos[hidden]{display:none!important}
+.mcompos.charge{opacity:.55}                         /* pendant le rechargement : on garde le cadre, on atténue (pas de saut) */
+.cv-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 2px 8px}
+.cv-head h4{margin:0;font-family:'Clash';font-weight:900;font-size:15px;color:var(--m-ink);text-shadow:var(--trait)}
+.cv-head h4 small{margin-left:8px;font-family:'BackBeat';font-weight:400;font-size:11.5px;color:var(--m-muted);text-shadow:none}
+.cv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,430px),1fr));gap:10px}
+.cv-card{padding:8px 10px 6px;border-radius:12px;background:var(--m-surface);border:2px solid #2f1d12;box-shadow:inset 0 2px 5px rgba(0,0,0,.35)}
+.cv-top{display:flex;align-items:center;gap:10px;margin:0 0 8px}
+.cv-rk{display:grid;place-items:center;width:22px;height:22px;border-radius:7px;font-family:'Clash';font-weight:900;font-size:11.5px;background:#4d3429;border:1.5px solid #2b170c;color:var(--m-ink)}
+.cv-card:first-child .cv-rk{background:linear-gradient(180deg,#ffd45a,#e3a41d);border-color:#8a5a0a;color:var(--m-on-gold)}
+.cv-rate{font-family:'Clash';font-weight:900;font-size:19px;color:var(--m-ink);text-shadow:var(--trait)}
+.cv-rate small{margin-left:3px;font-size:11px;color:var(--m-ink2);text-shadow:none}
+.cv-meta{margin-left:auto;font-size:11px;color:var(--m-muted)}
+.cv-note{margin:6px 2px;font-size:12px;color:var(--m-muted)}
+/* l'armée, réduite pour tenir dans une carte */
+.cv-card .army{gap:8px 12px}
+.cv-card .hcard{width:64px;padding:4px 3px;gap:3px}
+.cv-card .hcard .hp{width:50px;height:50px}
+.cv-card .hcard .pet{width:32px;height:32px}
+.cv-card .hcard .eq{width:24px;height:24px}
+.cv-card .hcard .hname{display:none}
+.cv-card .unit{width:36px;height:36px}
+.cv-card .unit .qty{font-size:9.5px}
+.cv-card .agrp{padding:4px 7px 6px}
+.cv-card .ahead{font-size:9.5px;margin-bottom:3px}
+.cv-card .army-note{display:none}
+.cv-card .aside{min-width:200px}
+@media (prefers-reduced-motion:reduce){.mcompos{transition:none}}
+
+/* bouton « Voir le profil complet » : toujours visible en bas du panneau joueur */
+.pn .btn-profil{position:sticky;bottom:0;z-index:2;display:block;margin-top:auto;padding:9px 12px;text-align:center;font-family:'Clash';font-weight:900;font-size:13.5px;color:#fff;text-shadow:var(--trait);background:linear-gradient(180deg,#b6f060,#6fb52a);border:2px solid #2f5a0e;border-radius:10px;box-shadow:0 2px 0 #2f5a0e,0 6px 12px rgba(0,0,0,.35)}
+.pn .btn-profil:hover{filter:brightness(1.08)}
+.pn .btn-profil:active{transform:translateY(1px)}
+
+/* ---------- icônes : une seule planche (public/img/sprite.webp), 13 × 13 cases ; l'<img> garde sa taille et ses bordures ---------- */
+img.sp[data-i]{background-image:url('/img/sprite.webp'),radial-gradient(circle at 40% 30%,#8a6045,#4d3429);background-repeat:no-repeat;background-size:1300% 1300%,100% 100%;background-position:calc(var(--c)*100%/12) calc(var(--r)*100%/12),0 0}
+img.sp.thi[data-i],img.sp.hdv-big[data-i]{background-image:url('/img/sprite.webp');background-size:1300% 1300%;background-position:calc(var(--c)*100%/12) calc(var(--r)*100%/12)}
+
+/* ---------- historique : une semaine se déplie pour montrer ses chiffres ; les plus anciennes sont repliées ---------- */
+.hw>summary,.hmore>summary{list-style:none;cursor:pointer}
+.hw>summary::-webkit-details-marker,.hmore>summary::-webkit-details-marker{display:none}
+.hw[open]>.hrow{border-bottom-left-radius:0;border-bottom-right-radius:0}
+.hdet{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;padding:7px 14px;margin-top:-1px;border:1px solid var(--line);border-top:0;border-radius:0 0 12px 12px;background:rgba(0,0,0,.22);font-size:12.5px;color:var(--muted)}
+.hdet span{display:inline-flex;align-items:center;gap:6px}
+.hdet b{color:#fff}
+.hdet .mi{height:16px;width:auto}
+.hmore{margin-top:2px}
+.hmore>summary{display:flex;align-items:center;justify-content:center;gap:8px;padding:8px;border-radius:10px;font-family:'Clash';font-weight:900;font-size:12.5px;color:var(--gold);border:1px dashed var(--line2)}
+.hmore>summary b{padding:1px 8px;border-radius:99px;background:rgba(255,255,255,.1);color:#fff}
+.hmore>summary:hover{background:rgba(255,255,255,.05)}
+.hmore[open]>summary{margin-bottom:8px}
+/* bandeau : le texte se pose au centre du corps du ruban, pas de l'image entière (la couronne et les queues le faisaient descendre) */
+.ribbon span{transform:translateY(-5px)!important}
+
+/* page d'accueil : carte plus épaisse (en-tête, champ et bouton plus hauts) */
+.accueil{margin-top:6vh!important}
+.accueil .chead{padding:26px 30px}
+.accueil .chead h1{font-size:30px}
+.accueil .chead .ic img{width:56px;height:56px}
+.accueil .cbody{padding:30px 30px 34px}
+.accueil .lab{font-size:14px;margin-bottom:10px}
+.accueil .field{padding:0 22px;border-radius:14px}
+.accueil .field input{font-size:26px;padding:22px 0}
+.accueil .field .pfx{font-size:28px}
+.accueil .btn{height:68px;font-size:20px;margin-top:22px;border-radius:15px}
+.accueil .btn img{width:34px;height:34px}
+/* les logos gardent leur proportion (le logo Légende n'est pas carré) */
+.chead .ic img,.brand img,.btn img,.hero-badge img,.dtop img.league{object-fit:contain}
+.accueil .chead .ic{width:auto;height:auto;background:none;border:0;box-shadow:none;padding:0}
