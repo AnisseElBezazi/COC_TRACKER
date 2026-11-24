@@ -5,6 +5,8 @@ namespace App\Service;
 use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\HttpClient\RetryableHttpClient;
 use Symfony\Component\HttpClient\Retry\GenericRetryStrategy;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -12,6 +14,9 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * Client de l'API Clash of Clans (proxy sans clé). Réessaie tout seul si l'API répond 429.
+ *
+ * Hors ligne : si COC_API_URL est un dossier (ex. « fixtures/api ») et non une adresse http(s), les réponses sont lues
+ * dans des fichiers JSON de ce dossier, ce qui permet de tester sans le serveur (voir fixtures/api/LISEZ-MOI.md).
  */
 class CocApi
 {
@@ -26,7 +31,17 @@ class CocApi
         // Réponses gardées quelques minutes : revenir sur un joueur ou un groupe ne refait pas les mêmes appels (null : pas de cache).
         #[Autowire(service: 'cache.coc_api')]
         private ?CacheItemPoolInterface $cache = null,
+        #[Autowire('%kernel.project_dir%')]
+        ?string $projet = null,
     ) {
+        if ($baseUrl && !preg_match('#^https?://#i', $baseUrl)) {
+            // Mode hors ligne : un dossier de réponses JSON, pas de réseau, pas de cache.
+            $dossier = str_starts_with($baseUrl, '/') ? $baseUrl : rtrim((string) $projet, '/').'/'.$baseUrl;
+            $this->baseUrl = 'http://fixtures.local/';
+            $this->cache = null;
+            $client = new MockHttpClient(fn (string $methode, string $url) => $this->reponseLocale(rtrim($dossier, '/'), $url));
+            $baseUrl = $this->baseUrl;
+        }
         $this->baseUrl = rtrim($baseUrl ?: 'https://api.quentindeglas.com/v1', '/').'/';
         $this->client = $client ?? new RetryableHttpClient(
             // Plusieurs requêtes en parallèle vers le même serveur : l'import d'un groupe en dépend.
@@ -34,6 +49,21 @@ class CocApi
             new GenericRetryStrategy([429, 503], delayMs: 2000),
             maxRetries: 4,
         );
+    }
+
+    /**
+     * Réponse lue dans un fichier du dossier hors ligne : « players/%2382U22QLL/battlelog » -> players__82U22QLL__battlelog.json.
+     * Un fichier absent répond 404, comme l'API pour un joueur ou un groupe inconnu.
+     */
+    private function reponseLocale(string $dossier, string $url): MockResponse
+    {
+        $chemin = ltrim((string) parse_url($url, \PHP_URL_PATH), '/');
+        $fichier = $dossier.'/'.str_replace('/', '__', str_replace('#', '', urldecode($chemin))).'.json';
+        $enTetes = ['response_headers' => ['content-type: application/json']];
+
+        return is_file($fichier)
+            ? new MockResponse((string) file_get_contents($fichier), $enTetes)
+            : new MockResponse('{"reason":"notFound"}', ['http_code' => 404] + $enTetes);
     }
 
     /** @return array<string, mixed> */
