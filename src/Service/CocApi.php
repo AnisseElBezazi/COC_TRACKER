@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpClient\RetryableHttpClient;
@@ -22,6 +23,9 @@ class CocApi
         #[Autowire(env: 'default::COC_API_URL')]
         ?string $baseUrl = null,
         ?HttpClientInterface $client = null,
+        // Réponses gardées quelques minutes : revenir sur un joueur ou un groupe ne refait pas les mêmes appels (null : pas de cache).
+        #[Autowire(service: 'cache.coc_api')]
+        private ?CacheItemPoolInterface $cache = null,
     ) {
         $this->baseUrl = rtrim($baseUrl ?: 'https://api.quentindeglas.com/v1', '/').'/';
         $this->client = $client ?? new RetryableHttpClient(
@@ -98,6 +102,27 @@ class CocApi
      */
     private function requete(string $chemin, array $query = []): ResponseInterface
     {
-        return $this->client->request('GET', $this->baseUrl.$chemin, ['query' => $query]);
+        $duree = $this->duree($chemin);
+        if (!$this->cache || 0 === $duree) {
+            return $this->client->request('GET', $this->baseUrl.$chemin, ['query' => $query]);
+        }
+        $cle = 'coc_'.sha1($chemin.'?'.http_build_query($query));
+        $item = $this->cache->getItem($cle);
+        if ($item->isHit()) {
+            return new ReponseEnCache($item->get());
+        }
+
+        return new ReponseMemorisee($this->client->request('GET', $this->baseUrl.$chemin, ['query' => $query]), $this->cache, $cle, $duree);
+    }
+
+    /** Durée de conservation (secondes) selon ce qui change : les ligues presque jamais, un profil ou un groupe en cours souvent. */
+    private function duree(string $chemin): int
+    {
+        return match (true) {
+            'leaguetiers' === $chemin => 7 * 86400,
+            str_ends_with($chemin, '/leaguehistory') => 6 * 3600,
+            str_starts_with($chemin, 'leaguegroup/') => 900,
+            default => 600,   // profil, combats
+        };
     }
 }
