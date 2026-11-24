@@ -4,9 +4,16 @@ framework:
 
     # Note that the session will be started ONLY if you read or write from it.
     session: true
-
-    #esi: true
-    #fragments: true
+    http_client:
+        # Import d'un groupe : beaucoup de requêtes en parallèle vers le même serveur.
+        max_host_connections: 12
+        default_options:
+            timeout: 30
+            # L'API répond 429 quand elle est saturée : on réessaie tout seul au lieu d'échouer.
+            retry_failed:
+                max_retries: 4
+                delay: 2000
+                http_codes: [429, 503]
 
 when@test:
     framework:

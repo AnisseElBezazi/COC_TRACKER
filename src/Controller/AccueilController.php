@@ -39,8 +39,14 @@ class AccueilController extends AbstractController
             return $this->redirectToRoute('app_accueil');
         }
 
+        // Joueur analysé il y a moins de 10 minutes : on réutilise ses données (aucun appel à l'API).
+        $connu = $em->getRepository(Joueur::class)->findOneBy(['tag' => $tag]);
+        $frais = $connu?->getImporteLe() && $connu->getImporteLe() > new \DateTimeImmutable('-10 minutes');
+
         try {
-            $import->importerJoueur($tag);
+            if (!$frais) {
+                $import->importerJoueur($tag);
+            }
         } catch (\Throwable) {
             // L'API est peut-être indisponible : si on connaît déjà ce joueur, on continue avec ses données.
             if (!$em->getRepository(Joueur::class)->findOneBy(['tag' => $tag])) {
