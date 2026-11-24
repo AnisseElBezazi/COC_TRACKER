@@ -17,3 +17,15 @@ framework:
         # Namespaced pools use the above "app" backend by default
         #pools:
             #my.dedicated.cache: null
+
+    # Réponses de l'API Clash gardées quelques minutes (voir CocApi::duree).
+        pools:
+            cache.coc_api:
+                adapter: cache.adapter.filesystem
+
+when@test:
+    framework:
+        cache:
+            pools:
+                cache.coc_api:
+                    adapter: cache.adapter.array
