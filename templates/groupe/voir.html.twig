@@ -21,8 +21,8 @@
             {% else %}
                 <b>Les 20 premiers sont analysés.</b> <span id="analyse-compte" hidden></span>
                 <div class="bar" id="analyse-piste" hidden style="--c1:var(--green);--c2:var(--green2)"><i id="analyse-barre" style="width:2%"></i></div>
-                <p class="note">Les armées des {{ autresAAnalyser }} autres joueurs qui ont attaqué ne sont pas encore chargées.</p>
-                <button class="btn" type="button" id="analyse-go" style="width:auto;padding:0 18px">Analyser les {{ autresAAnalyser }} autres</button>
+                <p class="note">{{ autresAAnalyser > 1 ? 'Les armées des ' ~ autresAAnalyser ~ ' autres joueurs qui ont attaqué ne sont' : 'L\'armée du dernier joueur qui a attaqué n\'est' }} pas encore chargée{{ autresAAnalyser > 1 ? 's' : '' }}.</p>
+                <button class="btn" type="button" id="analyse-go" style="width:auto;padding:0 22px;margin:10px auto 2px;display:flex">{{ autresAAnalyser > 1 ? 'Analyser les ' ~ autresAAnalyser ~ ' autres' : 'Analyser le dernier' }}</button>
             {% endif %}
         </div>
         <script>

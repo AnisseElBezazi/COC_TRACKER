@@ -216,3 +216,8 @@ img.sp.thi[data-i],img.sp.hdv-big[data-i]{background-image:url('/img/sprite.webp
 .dcard .medal,.dcard .rkn{width:36px;height:36px;font-size:16px}
 .dcard img.thi{width:40px;height:40px}
 .dcard .cf .ico img,.dcard .cf .ico .fb{width:30px;height:30px}
+
+/* bandeau d'analyse : texte et bouton centrés */
+#analyse{text-align:center}
+#analyse .bar{margin-left:auto;margin-right:auto}
+#analyse-go{margin-left:auto;margin-right:auto}
