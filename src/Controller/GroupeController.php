@@ -31,6 +31,8 @@ class GroupeController extends AbstractController
         return $this->render('groupe/voir.html.twig', [
             'groupe' => $groupe,
             'analyseIncomplete' => $import->analyseIncomplete($groupe),
+            // Au-delà des premiers du classement : analysés seulement si l'utilisateur le demande (bouton).
+            'autresAAnalyser' => $import->autresAAnalyser($groupe),
             'prediction' => $lignes,
             'regle' => $regle,
             'kpis' => $this->kpis($lignes, $regle),
@@ -82,14 +84,16 @@ class GroupeController extends AbstractController
             return new JsonResponse(['erreur' => 'Jeton invalide'], 403);
         }
 
-        [$fait, $total] = $import->importerMembres($groupe, max(0, $request->request->getInt('debut')));
+        // Sans « tout », seuls les premiers du classement sont analysés ; avec, le reste du groupe aussi (bouton de l'écran).
+        $limite = $request->request->getBoolean('tout') ? null : ImportService::PREMIERS;
+        [$fait, $total] = $import->importerMembres($groupe, max(0, $request->request->getInt('debut')), limite: $limite);
 
         return new JsonResponse([
             'fait' => $fait,
             'total' => $total,
             'termine' => $fait >= $total,
             // Joueurs que l'API a refusés temporairement : l'écran repasse dessus.
-            'restants' => $fait >= $total ? $import->restantsAAnalyser($groupe) : null,
+            'restants' => $fait >= $total ? $import->restantsAAnalyser($groupe, $limite) : null,
         ]);
     }
 

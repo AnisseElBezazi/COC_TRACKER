@@ -41,6 +41,11 @@ class ImportService
     /** @var array<string, Combat> */
     private array $combats = [];
 
+    /** Nombre de joueurs du haut du classement analysés d'office ; les autres le sont sur demande. */
+    public const PREMIERS = 20;
+
+    private bool $liguesChargees = false;
+
     private int $ignores = 0;
 
     public function __construct(
@@ -62,9 +67,10 @@ class ImportService
      */
     public function chargerLigues(): void
     {
-        if ($this->ligues) {
+        if ($this->liguesChargees) {
             return;
         }
+        $this->liguesChargees = true;
         foreach ($this->api->ligues() as $item) {
             $ligue = $this->em->getRepository(Ligue::class)->findOneBy(['idSupercell' => $item['id']]) ?? new Ligue();
             $ligue->setIdSupercell($item['id'])
@@ -152,11 +158,13 @@ class ImportService
      *
      * @return array{int, int} [membres traités, total]
      */
-    public function importerMembres(GroupeLigue $groupe, int $debut, int $nombre = 10): array
+    public function importerMembres(GroupeLigue $groupe, int $debut, int $nombre = 10, ?int $limite = null): array
     {
-        $participations = $this->em->createQuery(
-            'SELECT p, j FROM '.Participation::class.' p JOIN p.joueur j WHERE p.groupe = :groupe ORDER BY j.tag'
-        )->setParameter('groupe', $groupe)->getResult();
+        // Du mieux classé au moins bien classé : avec une limite, seuls les premiers sont analysés (les autres sur demande).
+        $participations = $this->classement($groupe);
+        if (null !== $limite) {
+            $participations = \array_slice($participations, 0, $limite);
+        }
 
         // Seuls comptent les joueurs qui ont attaqué depuis leur dernier import : les autres n'ont rien de nouveau dans leurs combats.
         // Un joueur sans aucune attaque cette semaine n'a donc coûté aucun appel à l'API.
@@ -205,21 +213,48 @@ class ImportService
     }
 
     /**
-     * Nombre de membres du groupe jamais analysés (ou dont l'analyse a échoué temporairement).
+     * Membres du groupe (les $limite premiers du classement, ou tous) dont les combats sont à importer
+     * (jamais analysés, ou qui ont attaqué depuis, ou dont l'analyse a échoué temporairement).
      */
-    public function restantsAAnalyser(GroupeLigue $groupe): int
+    public function restantsAAnalyser(GroupeLigue $groupe, ?int $limite = null): int
     {
-        return (int) $this->em->createQuery(
-            'SELECT COUNT(p.id) FROM '.Participation::class.' p WHERE p.groupe = :g AND (p.attaquesImportees IS NULL OR p.attaquesImportees < p.attaquesGagnees + p.attaquesPerdues)'
-        )->setParameter('g', $groupe)->getSingleScalarResult();
+        $participations = $this->classement($groupe);
+        if (null !== $limite) {
+            $participations = \array_slice($participations, 0, $limite);
+        }
+
+        return \count(array_filter($participations, static fn (Participation $p) => $p->aDeNouvellesAttaques()));
     }
 
     /**
-     * Vrai tant qu'au moins un membre du groupe n'a jamais été analysé.
+     * Vrai tant que les premiers joueurs du classement (ceux qui font la méta) ne sont pas analysés :
+     * c'est ce que l'écran attend automatiquement au premier affichage d'un groupe.
      */
     public function analyseIncomplete(GroupeLigue $groupe): bool
     {
-        return $this->restantsAAnalyser($groupe) > 0;
+        return $this->restantsAAnalyser($groupe, self::PREMIERS) > 0;
+    }
+
+    /**
+     * Joueurs au-delà des premiers qui ont attaqué et dont les combats ne sont pas encore importés :
+     * analysés seulement quand l'utilisateur le demande. Un joueur sans attaque ne coûte aucun appel, il n'est pas compté.
+     */
+    public function autresAAnalyser(GroupeLigue $groupe): int
+    {
+        return \count(array_filter(
+            \array_slice($this->classement($groupe), self::PREMIERS),
+            static fn (Participation $p) => $p->aDeNouvellesAttaques() && $p->getAttaquesGagnees() + $p->getAttaquesPerdues() > 0,
+        ));
+    }
+
+    /**
+     * @return list<Participation> les participations du groupe, du plus de trophées au moins
+     */
+    private function classement(GroupeLigue $groupe): array
+    {
+        return $this->em->createQuery(
+            'SELECT p, j FROM '.Participation::class.' p JOIN p.joueur j WHERE p.groupe = :groupe ORDER BY p.trophees DESC, j.tag'
+        )->setParameter('groupe', $groupe)->getResult();
     }
 
     /** Erreur qui peut disparaître en réessayant plus tard : API saturée (429), panne du serveur (5xx) ou réseau. */
